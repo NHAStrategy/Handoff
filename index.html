@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <style>
+[hidden]{display:none!important}
 #viewChooser{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
 .ch-inner{max-width:680px;width:100%}
 .ch-mark{font-weight:800;font-size:30px;letter-spacing:-.01em;color:var(--navy)}
@@ -50,7 +51,7 @@ a{color:var(--blue)}
 header.site{background:#fff;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px}
 header.site .logo{width:34px;height:34px;flex:none}
 header.site .name{font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-header.site .menu{margin-left:auto;color:var(--blue);font-weight:700;font-size:14px;letter-spacing:.08em}
+header.site .menu{margin-left:auto;color:var(--blue);font-weight:700;font-size:14px;letter-spacing:.04em;background:none;border:none;cursor:pointer;font-family:inherit;padding:4px 0}
 .hero{background:var(--navy);color:#fff;text-align:center;padding:26px 20px 30px}
 .hero h1{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:25px;line-height:1.25;margin:0 auto}
 .hero .conf{margin-top:8px;font-size:16.5px;opacity:.95}
@@ -269,12 +270,12 @@ nav.tabs button.on{color:var(--ink);border-bottom-color:var(--blue)}
 <div id="viewApplicant" hidden>
 <div class="langbar">
   <span class="on">English</span><span>Español</span><span>中文</span><span>Tiếng Việt</span>
-  <span class="langdemo"><button id="genApplicant" title="Demo: cycles through all 9 Bay Area counties, one per click">⟳ New applicant</button><button id="swApp" title="Back to the view chooser">⇄ Switch view</button><span id="genInfo"></span></span>
+  <span class="langdemo"><button id="genApplicant" title="Demo: cycles the four income bands — 0–30, 30–50, 50–80, 80–120% AMI — random household within each">⟳ New applicant</button><button id="swApp" data-home title="Back to the view chooser">⇄ Switch view</button><span id="genInfo"></span></span>
 </div>
 <header class="site">
   <svg class="logo" viewBox="0 0 34 34"><path d="M17 4 3 15h4v14h20V15h4L17 4z" fill="var(--blue)"/><rect x="14.5" y="17" width="5" height="7" fill="#fff"/></svg>
   <span class="name">Doorway Housing Portal</span>
-  <span class="menu">MENU ≡</span>
+  <button class="menu" data-home>← Back to start</button>
 </header>
 
 <div class="hero">
@@ -409,6 +410,8 @@ nav.tabs button.on{color:var(--ink);border-bottom-color:var(--blue)}
     </div>
   </details>
 
+  <div style="text-align:center;margin-top:36px"><button class="btn" data-home style="cursor:pointer;font-family:inherit">← Back to start</button></div>
+
 </div>
 </div>
 
@@ -416,7 +419,7 @@ nav.tabs button.on{color:var(--ink);border-bottom-color:var(--blue)}
 <header>
   <div class="brand">Doorway Admin Console<small>Santa Clara County · Prototype</small></div>
   <div class="spacer"></div>
-  <button class="btn-outline" id="swAdmin" style="padding:8px 16px;font-size:13.5px">⇄ Switch view</button>
+  <button class="btn-outline" id="swAdmin" data-home style="padding:8px 16px;font-size:13.5px">← Back to start</button>
 </header>
 <nav class="tabs">
   <button data-tab="matcher" class="on">Resource Matcher</button>
@@ -560,6 +563,7 @@ nav.tabs button.on{color:var(--ink);border-bottom-color:var(--blue)}
 
 </section>
 <div class="protonote"><b>Prototype notes.</b> Resource entries are seeded from the county program documentation index and are editable here. Income limits use the 2026 State Income Limits (Santa Clara County Area Median Income $205,500, 4-person household); reconfirm at each annual update. Post-Redesign Coordinated Entry System scoring thresholds are not yet published — the matcher works from eligibility facts only and never computes a score.</div>
+<div style="text-align:center;margin:30px 0 10px"><button class="btn-outline" data-home>← Back to start</button></div>
 </main>
 </div>
 
@@ -872,16 +876,17 @@ function initProto(){
 const GEN_FIRST=["Maria","Vinh","Aisha","Wei","Rosa","Devon","Linh","Carlos","Fatima","Grace","Miguel","Ana","Priya","Jae","Elena","Marcus","Thao","Diego","Nia","Hector","Mei","Omar","Leilani","Raymond","Sofia","Andre","Huong","Jasmine","Kai","Guadalupe"];
 const GEN_LAST=["Nguyen","Garcia","Tran","Hernandez","Lee","Johnson","Martinez","Pham","Kim","Lopez","Washington","Flores","Chen","Rodriguez","Patel","Vo","Ramirez","Brown","Le","Santos","Ortiz","Jackson","Wong","Rivera","Singh","Diaz","Yee","Cruz","Ali","Reyes"];
 const COUNTY_ORDER=Object.keys(AMI_4P);
-let genIdx=0;
+const BANDS=[[4,30,"0–30% AMI"],[31,50,"30–50% AMI"],[51,80,"50–80% AMI"],[81,120,"80–120% AMI"]];
+let bandIdx=0;
 const wpickM=pairs=>{let r=Math.random()*pairs.reduce((s,p)=>s+p[1],0);for(const p of pairs){r-=p[1];if(r<=0)return p[0]}return pairs[0][0]};
 function generateApplicant(){
-  const county=COUNTY_ORDER[genIdx%COUNTY_ORDER.length];
-  genIdx++;
+  const county=COUNTY_ORDER[Math.floor(Math.random()*COUNTY_ORDER.length)];
+  const band=BANDS[bandIdx%BANDS.length];
+  bandIdx++;
   const cities=(CITIES[county]||[]).filter(c=>!c.startsWith("Other"));
   const city=cities.length?cities[Math.floor(Math.random()*cities.length)]:"Other / unincorporated";
   const hh=wpickM([[1,28],[2,26],[3,18],[4,16],[5,8],[6,4]]);
-  const target=wpickM([[12,18],[25,22],[42,20],[60,22],[85,12],[105,6]]);
-  const pct=Math.max(4,target+Math.round(Math.random()*14-7));
+  const pct=band[0]+Math.floor(Math.random()*(band[1]-band[0]+1));   // random within the current band
   const income=Math.round(pct/100*AMI_4P[county]*(HH_ADJ[hh]||1)/100)*100;
   const homeless=pct<=28&&Math.random()<.35;
   applicant={
@@ -920,7 +925,7 @@ function generateApplicant(){
   $("listingName").textContent=profile.listing;
   const name=profile.name;
   const tags=[applicant.homelessFlag&&"homeless",applicant.atRisk&&"at risk",applicant.veteran&&"veteran",applicant.dv&&"DV survivor"].filter(Boolean);
-  $("genInfo").innerHTML=`<b>${name}</b> — ${county} County (${((genIdx-1)%COUNTY_ORDER.length)+1} of ${COUNTY_ORDER.length})${tags.length?" · "+tags.join(", "):""}`;
+  $("genInfo").innerHTML=`<b>${name}</b> — ${county} County · ${band[2]} (${((bandIdx-1)%BANDS.length)+1} of ${BANDS.length})${tags.length?" · "+tags.join(", "):""}`;
   window.__syncProtoFromApplicant();
   render();
 }
@@ -1273,8 +1278,7 @@ renderLibrary();
   function show(k){for(const x in V)V[x].hidden=x!==k;window.scrollTo(0,0);}
   document.getElementById("chooseApplicant").addEventListener("click",()=>show("app"));
   document.getElementById("chooseAdmin").addEventListener("click",()=>show("admin"));
-  document.getElementById("swApp").addEventListener("click",()=>show("chooser"));
-  document.getElementById("swAdmin").addEventListener("click",()=>show("chooser"));
+  document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>show("chooser")));
   show("chooser");
 })();
 </script>
