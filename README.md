@@ -1,2 +1,2 @@
 # Handoff
-Doorway warm handoff demo
+Doorway Confirmation page handoff + admin console demo
