@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
+<title>Doorway Portal — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+#viewChooser{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
+.ch-inner{max-width:680px;width:100%}
+.ch-mark{font-weight:800;font-size:30px;letter-spacing:-.01em;color:var(--navy)}
+.ch-mark span{color:var(--blue)}
+#viewChooser h1{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:29px;margin-top:18px}
+.ch-sub{color:var(--muted);font-size:15.5px;margin-top:6px}
+.ch-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:26px}
+.ch-card{background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.10);border-radius:4px;border:2px solid transparent;padding:26px 20px;cursor:pointer;font:inherit;text-align:center;color:#333}
+.ch-card:hover{border-color:#0077DA}
+.ch-ico{width:40px;height:40px;display:block;margin:0 auto 10px}
+.ch-ico svg{width:100%;height:100%;stroke:#333;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ch-card h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:19px}
+.ch-card p{font-size:13.5px;color:#767676;margin-top:6px;line-height:1.55}
+.ch-note{font-size:12px;color:#767676;margin-top:22px}
+
+:root{
+  color-scheme: light only;
+  --blue:#0077DA;        /* action / link / Doorway system */
+  --navy:#275A94;        /* hero band / Housing Authority system */
+  --ces:#6A4C93;         /* Coordinated Entry system */
+  --ink:#333;
+  --muted:#767676;
+  --bg:#F6F6F6;
+  --card:#FFFFFF;
+  --line:#E1E1E1;
+  --green-soft:#DCF0DC; --green:#2E7D5B;
+  --band1:#17406B; --band2:#0077DA; --band3:#7FB8E8; --band4:#C9E0F4;
+  --shadow:0 2px 5px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:#F6F6F6}
+body{font-family:'Open Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.6}
+a{color:var(--blue)}
+.serif{font-family:'Source Serif 4',Georgia,serif}
+/* ---- chrome ---- */
+.langbar{background:#3A3A3A;color:#fff;font-size:14.5px;padding:10px 16px;display:flex;justify-content:center;gap:26px}
+.langbar span{opacity:.65}
+.langbar span.on{opacity:1;font-weight:700}
+header.site{background:#fff;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.08);display:flex;align-items:center;gap:12px}
+header.site .logo{width:34px;height:34px;flex:none}
+header.site .name{font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+header.site .menu{margin-left:auto;color:var(--blue);font-weight:700;font-size:14px;letter-spacing:.08em}
+.hero{background:var(--navy);color:#fff;text-align:center;padding:26px 20px 30px}
+.hero h1{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:25px;line-height:1.25;margin:0 auto}
+.hero .conf{margin-top:8px;font-size:16.5px;opacity:.95}
+.hero .conf b{font-weight:700}
+.btn{display:inline-block;background:#fff;color:var(--blue);font-weight:700;font-size:16px;border:2px solid var(--blue);border-radius:4px;padding:12px 26px;text-decoration:none}
+.hero .btn{margin-top:24px;border-color:#fff}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 70px}
+/* ---- demo generator (tucked into the language bar) ---- */
+.langbar{position:relative}
+.langdemo{position:absolute;right:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:10px;opacity:.85}
+.langdemo button{font:inherit;font-size:12px;font-weight:600;color:#fff;background:transparent;border:1px solid rgba(255,255,255,.45);border-radius:4px;padding:4px 10px;cursor:pointer}
+.langdemo button:hover{background:rgba(255,255,255,.12)}
+#genInfo{font-size:11.5px;color:rgba(255,255,255,.75);max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#genInfo b{color:#fff;font-weight:600}
+@media (max-width:760px){ #genInfo{display:none} .langdemo{right:8px} }
+/* ---- centered section headers (icon + blue underline + serif) ---- */
+#viewApplicant section{margin-top:38px;text-align:center}
+.icon{width:34px;height:34px;margin:0 auto;display:block}
+.icon svg{width:100%;height:100%;stroke:var(--ink);stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rule{width:56px;height:4px;background:var(--blue);margin:10px auto 14px}
+#viewApplicant h2{font-family:'Source Serif 4',Georgia,serif;font-weight:400;font-size:23px;line-height:1.3}
+#viewApplicant .sub{color:var(--muted);font-size:15px;max-width:54ch;margin:8px auto 0}
+/* ---- snapshot card ---- */
+.card{background:var(--card);box-shadow:var(--shadow);border-radius:2px;margin-top:28px;text-align:left}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);padding:16px 8px}
+.fact{padding:2px 16px;border-left:1px solid var(--line)}
+.fact:first-child{border-left:none}
+.fact .k{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.fact .v{display:block;font-size:19px;font-weight:700;margin-top:2px}
+.fact .v small{display:block;font-size:12px;font-weight:400;color:var(--muted)}
+.rulerbox{padding:26px 22px 16px;border-top:1px solid var(--line)}
+.bandbar{position:relative;height:14px;display:flex;margin-top:26px}
+.bandbar .seg{height:100%}
+.seg.b1{background:var(--band1);width:25%}
+.seg.b2{background:var(--band2);width:16.667%}
+.seg.b3{background:var(--band3);width:25%}
+.seg.b4{background:var(--band4);width:33.333%}
+.marker{position:absolute;top:-26px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;transition:left .4s ease}
+.marker .tag{background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:3px 9px;border-radius:3px;white-space:nowrap}
+.marker .stem{width:2px;height:14px;background:var(--ink)}
+.ticks{display:flex;position:relative;height:36px;margin-top:6px;font-size:11.5px;color:var(--muted)}
+.tick{position:absolute;transform:translateX(-50%);text-align:center;line-height:1.3}
+.tick b{display:block;color:var(--ink);font-size:12px}
+#viewApplicant .cap{font-size:14px;color:var(--muted);margin-top:14px}
+/* ---- numbered referral steps (SJ pattern) ---- */
+.steps{margin-top:6px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;align-items:stretch}
+.step{margin-top:28px;position:relative;display:flex;flex-direction:column}
+.stepnum{width:44px;height:44px;border:2px solid #9A9A9A;border-radius:50%;background:var(--bg);color:var(--ink);font-size:18px;display:flex;align-items:center;justify-content:center;margin:0 auto;position:relative;z-index:2}
+.stepcard{background:var(--card);box-shadow:var(--shadow);border-radius:2px;margin-top:-22px;padding:36px 18px 18px;text-align:center;flex:1;display:flex;flex-direction:column}
+.steptag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.steptag.dw{color:var(--blue)} .steptag.ha{color:var(--navy)} .steptag.ces{color:var(--ces)} .steptag.ok{color:var(--green)}
+.stepcard .dico{width:26px;height:26px;margin:0 auto 4px;display:block}
+.stepcard .dico svg{width:100%;height:100%;stroke:var(--ink);stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.doorname{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:19px;margin-bottom:6px}
+.stepcard h3{font-size:16.5px;font-weight:700;line-height:1.3}
+.stepcard .footline{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);margin-top:12px;padding-top:9px}
+.safety{background:var(--card);box-shadow:var(--shadow);border-left:4px solid var(--ces);border-radius:2px;margin-top:16px;padding:14px 18px;text-align:left;display:flex;gap:14px;flex-wrap:wrap;align-items:baseline}
+.safety .stag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ces);white-space:nowrap}
+.safety .sbody{flex:1;min-width:240px;font-size:13.5px}
+.safety .sbody b{font-weight:700}
+.stepcard .why{color:var(--muted);font-size:14.5px;margin:8px auto 0;max-width:32ch}
+.stepcard .next{margin:14px 0 0;background:var(--bg);border-radius:3px;padding:11px 13px;font-size:13.5px;text-align:left;margin-top:auto;padding-top:11px}
+.stepcard .next b{font-weight:700}
+.stepcard .next ul{margin:6px 0 0 18px}
+.stepcard .next li{margin-top:4px}
+/* ---- diagram ---- */
+.dg-top{max-width:340px;margin:30px auto 0;background:var(--navy);color:#fff;border-radius:3px;padding:14px 18px;text-align:center;font-weight:700;font-size:15.5px}
+.dg-top small{display:block;font-weight:400;font-size:12.5px;opacity:.85;margin-top:2px}
+.dg-arrows{height:34px;position:relative;max-width:700px;margin:0 auto}
+.dg-arrows svg{width:100%;height:100%;display:block}
+.dg-arrows path{stroke:#B5B5B5;stroke-width:2;fill:none}
+.c1 .range{color:var(--blue)} .c2 .range{color:var(--navy)} .c3 .range{color:var(--ces)}
+.dg-how{font-size:13px;color:var(--muted);border-top:2px solid var(--line);padding-top:12px;margin-top:4px;text-align:left}
+.dg-how b{color:var(--ink)}
+/* ---- submitted application details (Bloom summary cards) ---- */
+section.appdetails{text-align:left}
+.secl{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dcard{background:var(--card);box-shadow:var(--shadow);border-radius:4px;margin-top:18px}
+.dcard .dhead{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line)}
+.dcard .dhead h3{font-family:'Source Serif 4',Georgia,serif;font-weight:600;font-size:24px}
+.editlink{color:var(--blue);font-weight:600;font-size:15px;text-decoration:underline;cursor:pointer}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px 26px;padding:22px 24px}
+.dfield .dk{font-size:15px;color:var(--muted)}
+.dfield .dv{font-size:18.5px;margin-top:3px;line-height:1.4}
+.dfield.full{grid-column:1/-1}
+@media (max-width:640px){ .dgrid{grid-template-columns:1fr} .dcard .dhead h3{font-size:21px} }
+/* ---- fine print & proto ---- */
+footer.fine{margin-top:60px;border-top:1px solid var(--line);padding-top:18px;font-size:13.5px;color:var(--muted);text-align:left}
+footer.fine p+p{margin-top:8px}
+details.proto{margin-top:36px;border:1px dashed #BDBDBD;border-radius:3px;background:#fff;text-align:left}
+details.proto summary{cursor:pointer;padding:13px 16px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;list-style:none}
+details.proto summary::-webkit-details-marker{display:none}
+details.proto summary::before{content:"▸ "}
+details.proto[open] summary::before{content:"▾ "}
+.protobody{padding:4px 16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.protobody label{font-size:12.5px;font-weight:700;color:var(--muted);display:block}
+.protobody input,.protobody select{width:100%;margin-top:4px;padding:9px 10px;border:1px solid #BDBDBD;border-radius:3px;font:inherit;font-size:14.5px;background:#fff}
+.protobody .chk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--ink);margin-top:22px}
+.protobody .chk input{width:auto;margin:0}
+.protonote{grid-column:1/-1;font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){
+  .hero h1{font-size:22px}
+  .facts{grid-template-columns:1fr 1fr;row-gap:14px}
+  .fact:nth-child(3){border-left:none}
+  .hero .conf{font-size:16.5px}
+  .dg-arrows{display:none}
+  .dg-top{margin-bottom:14px}
+  .fact .v{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){ .marker{transition:none} }
+@media (prefers-color-scheme:dark){ html,body{background:#F6F6F6;color:#333} }
+
+
+:root{
+  color-scheme: light only;
+  --ink:#333; --paper:#F6F6F6; --card:#fff; --line:#E1E1E1; --muted:#767676;
+  --ces:#6A4C93; --ha:#275A94; --doorway:#0077DA; --blue:#0077DA; --ok:#2E7D5B; --warn:#8A6D1F; --bad:#A3372E;
+  --band-eli:#17406B; --band-vli:#0077DA; --band-li:#7FB8E8; --band-mod:#C9E0F4;
+  --shadow:0 2px 5px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#F6F6F6}
+a{color:var(--ha)}
+#viewAdmin header{background:#fff;color:var(--ink);padding:14px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,.08);position:relative;z-index:2}
+#viewAdmin header .brand{font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+#viewAdmin header .brand small{display:block;font-weight:400;font-size:11.5px;color:var(--muted);letter-spacing:.05em;text-transform:none}
+#viewAdmin header .spacer{flex:1}
+nav.tabs{background:#fff;border-bottom:1px solid var(--line);padding:0 20px;display:flex;gap:4px}
+nav.tabs button{font:inherit;font-weight:600;font-size:14.5px;background:none;border:none;padding:13px 16px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent}
+nav.tabs button.on{color:var(--ink);border-bottom-color:var(--blue)}
+#viewAdmin main{max-width:1160px;margin:0 auto;padding:24px 20px 72px}
+#viewAdmin h2{font-size:20px;font-weight:800;margin-bottom:4px}
+#viewAdmin .sub{font-size:13.5px;color:var(--muted);margin-bottom:16px;max-width:78ch}
+/* tiles */
+/* chart cards */
+/* filters + table */
+.taglegend{font-size:12.5px;color:var(--muted);margin:0 0 12px;max-width:100ch}
+/* resources */
+.matchform{background:var(--card);box-shadow:var(--shadow);border-radius:2px;padding:18px;margin-bottom:18px}
+.matchform h3{font-size:15px;font-weight:700;margin-bottom:2px}
+.matchform .cap{font-size:13px;color:var(--muted);margin-bottom:14px;max-width:78ch}
+.mfgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 16px}
+.mfgrid label{font-size:12px;font-weight:700;color:var(--muted);display:block}
+.mfgrid input,.mfgrid select{width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font:inherit;font-size:14px;background:#fff}
+.mfsec{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;border-top:1px solid var(--line);padding-top:14px}
+.mfsummary{margin-top:14px;padding:10px 14px;background:var(--paper);border-radius:3px;font-size:13.5px}
+.mfsummary b{font-weight:700}
+.tiergroup{margin-top:22px}
+.tiergroup>h3{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.tiergroup>h3 .dot{width:9px;height:9px;border-radius:50%}
+.rescards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.res{background:var(--card);box-shadow:var(--shadow);border-radius:2px;padding:14px 16px;border-left:4px solid transparent}
+.res.strong{border-left-color:var(--ok)}
+.res.likely{border-left-color:var(--blue)}
+.res.no{border-left-color:#D5D5D5;opacity:.62;box-shadow:none;border:1px solid var(--line);border-left-width:4px}
+.res .cat{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.res h4{font-size:14.5px;font-weight:700;margin:3px 0 4px}
+.res p{font-size:13px;color:var(--ink)}
+.res .why{margin-top:8px;font-size:12.5px;padding:7px 10px;border-radius:3px;background:#DCF0DC;color:var(--ok);font-weight:600}
+.res.likely .why{background:#E3F1FC;color:var(--ha)}
+.res.no .why{background:#EFEFEF;color:var(--muted)}
+.res .access{margin-top:7px;font-size:11.5px;font-weight:700;color:var(--ha);text-transform:uppercase;letter-spacing:.04em}
+.res.no .access{color:var(--muted)}
+.res a{font-size:13px;display:inline-block;margin-top:8px}
+.roiwarn{background:#FDF6E3;border-left:3px solid var(--warn);border-radius:3px;padding:10px 14px;font-size:13px;margin-top:12px}
+.shelf{margin-top:30px;border-top:1px solid var(--line);padding-top:18px}
+.shelf h3{font-size:14px;font-weight:800;margin-bottom:4px}
+.shelf p{font-size:13px;color:var(--muted);margin-bottom:10px}
+.shelf ul{list-style:none;columns:2;column-gap:28px}
+.shelf li{font-size:13px;margin-bottom:7px;break-inside:avoid}
+.protonote{font-size:12px;color:var(--muted);border:1px dashed #BDBDBD;border-radius:3px;padding:10px 14px;margin-top:26px;background:#FBFDFD}
+
+/* ---- Bloom-style report pieces ---- */
+.btn-outline{font:inherit;font-size:14px;font-weight:700;color:var(--blue);background:#fff;border:2px solid var(--blue);border-radius:4px;padding:9px 18px;cursor:pointer}
+.btn-outline:hover{background:#F0F8FE}
+.btn-primary{font:inherit;font-size:14.5px;font-weight:700;color:#fff;background:var(--blue);border:2px solid var(--blue);border-radius:4px;padding:10px 22px;cursor:pointer}
+.btn-primary:disabled{opacity:.55;cursor:default}
+
+@media (prefers-color-scheme:dark){ html,body{background:#F6F6F6;color:#333} }
+
+#viewAdmin{font-size:15px;line-height:1.5}
+@media(max-width:820px){.shelf ul{columns:1}}
+.librow{background:#fff;box-shadow:var(--shadow);border-radius:2px;padding:12px 16px;margin-top:10px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.librow.editing{display:block}
+.librow .libdesc{font-size:13px;color:var(--muted);margin-top:2px;max-width:70ch}
+.librow .cat{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.librow-actions{display:flex;gap:14px;align-items:center;white-space:nowrap;font-size:13.5px;margin-top:4px}
+.librow-actions .btn-primary,.librow-actions .btn-outline{padding:7px 16px;font-size:13.5px}
+.enote{font-size:12px;color:var(--muted);white-space:normal}
+
+</style>
+</head>
+<body>
+
+<div id="viewChooser">
+  <div class="ch-inner">
+    <div class="ch-mark">Doorw<span>a</span>y</div>
+    <h1>One portal, two views</h1>
+    <p class="ch-sub">Santa Clara County prototype — choose where to start.</p>
+    <div class="ch-cards">
+      <button class="ch-card" id="chooseApplicant">
+        <span class="ch-ico"><svg viewBox="0 0 46 46"><path d="M23 7 6 20h5v18h24V20h5L23 7z"/><path d="M19 38v-9h8v9"/></svg></span>
+        <h3>Applicant confirmation</h3>
+        <p>What a household sees right after applying on Doorway — their snapshot, and where to look next.</p>
+      </button>
+      <button class="ch-card" id="chooseAdmin">
+        <span class="ch-ico"><svg viewBox="0 0 46 46"><rect x="7" y="9" width="32" height="28" rx="2"/><path d="M7 17h32M15 24h16M15 30h10"/></svg></span>
+        <h3>Admin console</h3>
+        <p>Resource matching and library management for county and partner staff.</p>
+      </button>
+    </div>
+    <p class="ch-note">Prototype — both views live in this one file.</p>
+  </div>
+</div>
+
+<div id="viewApplicant" hidden>
+<div class="langbar">
+  <span class="on">English</span><span>Español</span><span>中文</span><span>Tiếng Việt</span>
+  <span class="langdemo"><button id="genApplicant" title="Demo: cycles through all 9 Bay Area counties, one per click">⟳ New applicant</button><button id="swApp" title="Back to the view chooser">⇄ Switch view</button><span id="genInfo"></span></span>
+</div>
+<header class="site">
+  <svg class="logo" viewBox="0 0 34 34"><path d="M17 4 3 15h4v14h20V15h4L17 4z" fill="var(--blue)"/><rect x="14.5" y="17" width="5" height="7" fill="#fff"/></svg>
+  <span class="name">Doorway Housing Portal</span>
+  <span class="menu">MENU ≡</span>
+</header>
+
+<div class="hero">
+  <h1>Your application was received</h1>
+  <p class="conf">Confirmation <b id="confNum">DW-2026-081347</b> &nbsp;·&nbsp; Listing: <b id="listingName">Station Park Green</b></p>
+</div>
+
+<div class="wrap">
+
+  <section>
+    <span class="icon"><svg viewBox="0 0 46 46"><path d="M23 7 6 20h5v18h24V20h5L23 7z"/><path d="M19 38v-9h8v9"/></svg></span>
+    <div class="rule"></div>
+    <h2>Where your income lands</h2>
+    <p class="sub">Programs sort households by income compared to your county's <b>Area Median Income (AMI)</b>. This number decides which doors are open to you.</p>
+
+    <div class="card">
+      <div class="facts">
+        <div class="fact"><span class="k">Household</span><span class="v" id="sHH">—</span></div>
+        <div class="fact"><span class="k">Yearly income</span><span class="v" id="sInc">—</span></div>
+        <div class="fact"><span class="k">Where you live</span><span class="v" id="sCounty" style="font-size:17px">—<small id="sCity"></small></span></div>
+        <div class="fact"><span class="k">Your AMI level</span><span class="v" id="sAmi">—<small id="sBand"></small></span></div>
+      </div>
+      <div class="rulerbox">
+        <div class="bandbar" aria-hidden="true">
+          <div class="seg b1"></div><div class="seg b2"></div><div class="seg b3"></div><div class="seg b4"></div>
+          <div class="marker" id="amiMarker" style="left:50%"><span class="tag" id="amiTag">—</span><span class="stem"></span></div>
+        </div>
+        <div class="ticks">
+          <span class="tick" style="left:0%"><b>0%</b></span>
+          <span class="tick" style="left:25%"><b>30%</b>extremely low</span>
+          <span class="tick" style="left:41.667%"><b>50%</b>very low</span>
+          <span class="tick" style="left:66.667%"><b>80%</b>low</span>
+          <span class="tick" style="left:100%"><b>120%+</b></span>
+        </div>
+        <p class="cap" id="amiExplain"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="next">
+    <span class="icon"><svg viewBox="0 0 46 46"><path d="M14 8h13v30H14z"/><path d="M27 8l7 3v27l-7-3"/><circle cx="23.5" cy="23" r="1.4" fill="var(--ink)" stroke="none"/></svg></span>
+    <div class="rule"></div>
+    <h2>Where to look next</h2>
+    <p class="sub">Housing support lives behind three doors. Your answers show how each one fits you — nothing extra to fill out.</p>
+
+    <div class="dg-top">Your Doorway application<small>household size · income · where you live</small></div>
+    <div class="dg-arrows" aria-hidden="true"><svg id="arrowSvg" viewBox="0 0 700 34" preserveAspectRatio="none"></svg></div>
+    <div class="steps" id="routes"></div>
+    <div id="safetyRow"></div>
+  </section>
+
+
+  <section class="appdetails">
+    <div style="text-align:center">
+      <span class="icon"><svg viewBox="0 0 46 46"><rect x="10" y="8" width="26" height="32" rx="2"/><path d="M18 6h10v5H18z"/><path d="M16 19h14M16 25h14M16 31h9"/></svg></span>
+      <div class="rule"></div>
+      <h2>What you submitted</h2>
+      <p class="sub">Your answers, saved for your records.</p>
+    </div>
+
+    <div class="dcard">
+      <div class="dhead"><h3>Application</h3></div>
+      <div class="dgrid">
+        <div class="dfield"><div class="dk">Listing</div><div class="dv" id="dListing">—</div></div>
+        <div class="dfield"><div class="dk">Property location</div><div class="dv" id="dListingCity">—</div></div>
+        <div class="dfield"><div class="dk">Confirmation number</div><div class="dv" id="dConf">—</div></div>
+        <div class="dfield"><div class="dk">Submitted</div><div class="dv" id="dDate">—</div></div>
+      </div>
+    </div>
+
+    <div class="dcard">
+      <div class="dhead"><h3>You</h3></div>
+      <div class="dgrid">
+        <div class="dfield"><div class="dk">Name</div><div class="dv" id="dName">—</div></div>
+        <div class="dfield"><div class="dk">Date of birth</div><div class="dv" id="dDob">—</div></div>
+        <div class="dfield"><div class="dk">Phone</div><div class="dv" id="dPhone">—</div></div>
+        <div class="dfield"><div class="dk">Email</div><div class="dv" id="dEmail">—</div></div>
+        <div class="dfield full"><div class="dk">Address</div><div class="dv" id="dAddr">—</div></div>
+      </div>
+    </div>
+
+    <div class="dcard">
+      <div class="dhead"><h3>Household details</h3></div>
+      <div class="dgrid">
+        <div class="dfield"><div class="dk">Household size</div><div class="dv" id="dHH">—</div></div>
+        <div class="dfield"><div class="dk">Preferred unit type</div><div class="dv" id="dUnit">—</div></div>
+        <div class="dfield"><div class="dk">ADA accessibility needed</div><div class="dv" id="dAda">—</div></div>
+        <div class="dfield"><div class="dk">Expecting household changes</div><div class="dv" id="dChg">—</div></div>
+      </div>
+    </div>
+
+    <div class="dcard">
+      <div class="dhead"><h3>Income</h3></div>
+      <div class="dgrid">
+        <div class="dfield"><div class="dk">Housing voucher or rental subsidy</div><div class="dv" id="dVou">—</div></div>
+        <div class="dfield"><div class="dk">Annual household income</div><div class="dv" id="dInc2">—</div></div>
+        <div class="dfield"><div class="dk">% of Area Median Income</div><div class="dv" id="dAmi2">—</div></div>
+        <div class="dfield"><div class="dk">Voucher type</div><div class="dv" id="dVouT">—</div></div>
+      </div>
+    </div>
+
+    <div class="dcard">
+      <div class="dhead"><h3>Preferences &amp; demographics</h3></div>
+      <div class="dgrid">
+        <div class="dfield"><div class="dk">Veteran</div><div class="dv" id="dVet">—</div></div>
+        <div class="dfield"><div class="dk">Currently homeless or unstably housed</div><div class="dv" id="dHml">—</div></div>
+        <div class="dfield"><div class="dk">Disability</div><div class="dv" id="dDis">—</div></div>
+        <div class="dfield"><div class="dk">Race / ethnicity</div><div class="dv" id="dRace">—</div></div>
+        <div class="dfield"><div class="dk">Language spoken at home</div><div class="dv" id="dLang">—</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="fine">
+    <p><b>About these suggestions.</b> They are estimates based only on what you entered — household size, income, and where you live. They don't guarantee eligibility, and they don't affect your application to this listing in any way.</p>
+    <p>Doorway's listing range reflects the programs behind it: tax-credit (LIHTC) units are capped at 60% AMI (up to 80% under income averaging), inclusionary and density-bonus units can reach moderate income, and minimum-income rules at each property set effective floors near 30%. Coordinated Entry eligibility is based on housing status, not income; 30% AMI is used here as the routing threshold.</p>
+    <p>Income limits use the 2026 State Income Limits (HCD, revised June 2026, from HUD's FY2026 release). AMI figures change every year — reconfirm at each annual update.</p>
+  </footer>
+
+  <details class="proto">
+    <summary>Prototype controls — simulate a different applicant</summary>
+    <div class="protobody">
+      <div><label for="pHH">Household size</label><input id="pHH" type="number" min="1" max="8" value="2"></div>
+      <div><label for="pInc">Annual income ($)</label><input id="pInc" type="number" min="0" step="500" value="41000"></div>
+      <div><label for="pCounty">County</label><select id="pCounty"></select></div>
+      <div><label for="pCity">City</label><select id="pCity"></select></div>
+      <div class="chk"><input id="pHomeless" type="checkbox"><label for="pHomeless" style="text-transform:none;letter-spacing:0">Currently homeless / no permanent place</label></div>
+      <div class="chk"><input id="pAtRisk" type="checkbox"><label for="pAtRisk" style="text-transform:none;letter-spacing:0">At risk of losing housing</label></div>
+      <div class="chk"><input id="pVet" type="checkbox"><label for="pVet" style="text-transform:none;letter-spacing:0">Veteran in household</label></div>
+      <div class="chk"><input id="pDv" type="checkbox"><label for="pDv" style="text-transform:none;letter-spacing:0">DV survivor — simulates a proposed optional safety question (today's Doorway application does not ask this; it is never inferred)</label></div>
+      <p class="protonote">This panel exists only for demos. In production the page reads the submitted application; results render on load with no button press.</p>
+    </div>
+  </details>
+
+</div>
+</div>
+
+<div id="viewAdmin" hidden>
+<header>
+  <div class="brand">Doorway Admin Console<small>Santa Clara County · Prototype</small></div>
+  <div class="spacer"></div>
+  <button class="btn-outline" id="swAdmin" style="padding:8px 16px;font-size:13.5px">⇄ Switch view</button>
+</header>
+<nav class="tabs">
+  <button data-tab="matcher" class="on">Resource Matcher</button>
+  <button data-tab="manage">Manage Resources</button>
+</nav>
+<main>
+<section id="tab-matcher">
+<h2>Resource Matcher</h2>
+  <p class="sub">The county's CES program documentation, indexed and tagged with eligibility rules. Enter what you know about a household and the library re-sorts itself: programs the household most likely qualifies for rise to the top; programs they can't use are dimmed with the reason.</p>
+<div class="matchform">
+    <h3>Assessment inputs</h3>
+    <div class="cap">Built for the VI-SPDAT assessor: enter what the assessment captured — the Doorway application fields, the housing-history question, and the packet's program-eligibility questions — and the library sorts into what this household can actually reach. Nothing is inferred, and the numerical score is never entered or displayed here.</div>
+
+    <div class="mfsec">From the Doorway application</div>
+    <div class="mfgrid">
+      <div><label for="mHH">Household size</label><input id="mHH" type="number" min="1" max="8" value="2"></div>
+      <div><label for="mInc">Annual income ($)</label><input id="mInc" type="number" min="0" step="500" value="10000"></div>
+      <div><label for="mCity">City</label><select id="mCity"></select></div>
+      <div><label for="mAge">Head-of-household age</label><select id="mAge"><option>25–61</option><option>18–24 (TAY)</option><option>62+</option></select></div>
+    </div>
+    <div class="mfsec">From the VI-SPDAT &amp; SCC Additional Questions</div>
+    <div class="mfgrid">
+      <div><label for="mLS">Where do they sleep most frequently?</label><select id="mLS">
+        <option>Permanently housed</option>
+        <option>At risk of losing housing</option>
+        <option>Couch surfing / doubled up</option>
+        <option>Emergency shelter</option>
+        <option>Transitional housing / Safe Haven</option>
+        <option>Outdoors / place not meant for habitation</option>
+        <option>Vehicle</option>
+      </select></div>
+      <div><label for="mYears">Total years homeless</label><input id="mYears" type="number" min="0" max="40" value="0"></div>
+      <div><label for="mMonths">Months since permanent housing</label><input id="mMonths" type="number" min="0" max="480" value="0"></div>
+      <div><label for="mEpisodes">Homeless episodes, last 3 yrs</label><input id="mEpisodes" type="number" min="0" max="20" value="0"></div>
+      <div><label for="mUtil">ER / ambulance / inpatient / crisis uses, past 6 months</label><input id="mUtil" type="number" min="0" max="60" value="0"></div>
+      <div><label for="mIns">Health insurance</label><select id="mIns">
+        <option>No health insurance</option>
+        <option>Medicaid (Medi-Cal)</option>
+        <option>Medicare</option>
+        <option>VA Medical</option>
+        <option>Private insurance</option>
+        <option>Other</option>
+      </select></div>
+      <div><label for="mDischarge">Veteran discharge status</label><select id="mDischarge">
+        <option>Honorable / General (VA-eligible)</option>
+        <option>Other than honorable / Dishonorable</option>
+        <option>Unknown</option>
+      </select></div>
+      <div><label for="mQueue">Community queue status (after HMIS entry)</label><select id="mQueue">
+        <option value="none">Not yet entered in HMIS</option>
+        <option value="yes">Referred to community queue</option>
+        <option value="no">Not referred — community resources pathway</option>
+      </select></div>
+    </div>
+    <div class="flaggrid">
+      <label><input type="checkbox" id="mDv" checked> DV survivor</label>
+      <label><input type="checkbox" id="mFleeing"> Currently fleeing DV</label>
+      <label><input type="checkbox" id="mVet" checked> Veteran</label>
+      <label><input type="checkbox" id="mFoster"> Ever in foster care</label>
+      <label><input type="checkbox" id="mJustice"> Jail or prison history — reentry services</label>
+      <label><input type="checkbox" id="mDisability"> Permanent disability / chronic health condition</label>
+      <label><input type="checkbox" id="mHiv"> Interested in HIV/AIDS-designated programs</label>
+      <label><input type="checkbox" id="mKids"> Children under 18 in household</label>
+    </div>
+    <div class="mfsec">VI-SPDAT indicators used in matching</div>
+    <div class="flaggrid">
+      <label><input type="checkbox" id="mQ7"> Pending legal matters — reentry services</label>
+      <label><input type="checkbox" id="mQ8"> Forced or tricked into doing things — advocate/hotline routing</label>
+      <label><input type="checkbox" id="mQ17"> Currently pregnant — family-pathway priority</label>
+      <label><input type="checkbox" id="mQ18"> Substance use led to losing housing before</label>
+      <label><input type="checkbox" id="mQ19"> Substance use is a forward risk to housing</label>
+      <label><input type="checkbox" id="mQ20"> Mental health / cognitive issue incl. brain injury</label>
+      <label><input type="checkbox" id="mQ21"> Prescribed medications not being taken</label>
+      <label><input type="checkbox" id="mQ22"> Painkillers misused or sold</label>
+    </div>
+    <div class="mfsec">Other (counselor notes)</div>
+    <div class="mfgrid">
+      <div style="grid-column:1/-1"><label for="mOther">Anything the forms don't capture</label><input id="mOther" type="text" placeholder="Free text — carried into the match summary for context">
+      <div style="font-size:12px;color:var(--muted);margin-top:5px">Text entered here is never logged and never used to train any AI model.</div></div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+      <button class="btn-primary" id="genMatches">Generate resource matches</button>
+      <span id="genMsg" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+    <p class="taglegend" style="margin-top:10px">Matches are generated on request — in production this step is AI-assisted retrieval over the resource library, run against the deterministic eligibility gates shown on each card, with the assessor reviewing every result. Every field above changes matching; VI-SPDAT items that only feed the HMIS score are entered in HMIS, not here. The score itself is never computed or shown.</p>
+    <div class="mfsummary" id="mSummary"></div>
+  </div>
+
+  
+<div id="tierStrong" class="tiergroup"><h3><span class="dot" style="background:var(--ok)"></span>High Match</h3><div class="rescards"></div></div>
+  <div id="tierLikely" class="tiergroup"><h3><span class="dot" style="background:var(--blue)"></span>Medium Match</h3><div class="rescards"></div></div>
+  <div id="tierNo" class="tiergroup"><h3><span class="dot" style="background:#CBD5DB"></span>Low Match</h3><div class="rescards"></div></div>
+
+  </section>
+
+<section id="tab-manage" hidden>
+  <h2>Manage Resources</h2>
+  <p class="sub">Keep the library current: scan the authoritative sources, add or replace documents, and edit any resource card directly. Eligibility rules behind each resource are preserved through edits so matching keeps working.</p>
+<div class="matchform" id="scanCard">
+    <h3>Scan sources for new &amp; updated resources</h3>
+    <div class="cap">Checks the library's authoritative domains — osh.santaclaracounty.gov, scc.bitfocus.com, scchousingauthority.org, hudexchange.info — for documents that are new or newer than what's on file. Every finding requires human approval before it touches the library; nothing publishes automatically. <b>Simulated at Level 1.</b> In production this runs as a scheduled crawler with an AI summarizer over these domains only — AI drafts the finding, a person approves it, and the routing rules themselves stay untouched.</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button class="btn-outline" id="scanBtn">Scan sources</button>
+      <span id="scanMsg" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+    <div id="scanResults" style="margin-top:8px"></div>
+  </div>
+
+  
+<div class="matchform" id="uploadCard">
+    <h3>Add or update a resource</h3>
+    <div class="cap">Upload program documentation (PDF, Word, image) and it joins the library immediately. If you upload a revised version of an existing resource, choose “Replace existing” and the system updates it in place — eligibility tags are preserved, so matching keeps working. Uploads live in this browser session only (Level 1); production persists them to the shared library.</div>
+    <div class="mfgrid">
+      <div><label for="upMode">Action</label><select id="upMode"><option value="add">Add new resource</option><option value="replace">Replace existing resource</option></select></div>
+      <div id="upTargetWrap" style="display:none"><label for="upTarget">Resource to update</label><select id="upTarget"></select></div>
+      <div style="grid-column:1/-1"><label for="upFile">File (PDF, Word doc, or image)</label><input id="upFile" type="file" accept=".pdf,.doc,.docx,.txt,image/*"></div>
+      <div><label for="upCat">Label / category</label><input id="upCat" type="text" placeholder="e.g. Prevention"></div>
+      <div><label for="upName">Name</label><input id="upName" type="text" placeholder="Program or document name"></div>
+      <div style="grid-column:1/-1"><label for="upDesc">Description</label><input id="upDesc" type="text" placeholder="What this resource is"></div>
+      <div style="grid-column:1/-1"><label for="upWhy">Why (shown on the match chip)</label><input id="upWhy" type="text" placeholder="e.g. Serves South County families at risk of eviction"></div>
+      <div style="grid-column:1/-1"><label for="upLink">Link (optional — overrides the uploaded file)</label><input id="upLink" type="url" placeholder="https://…"></div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button class="btn-outline" id="upAdd">Add to library</button>
+      <span id="upMsg" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+  </div>
+
+  
+  <div class="matchform" id="libCard">
+    <h3>Edit existing resources</h3>
+    <div class="cap">Every card in the library. Edits change the name, category, description, or link — the eligibility rules stay intact.</div>
+    <div id="libList"></div>
+  </div>
+
+<div class="shelf">
+    <h3>Reference shelf — system documentation</h3>
+    <p>Governance, workflow, and standards documents. Not household-matched; always available.</p>
+    <ul id="shelf"></ul>
+  </div>
+
+</section>
+<div class="protonote"><b>Prototype notes.</b> Resource entries are seeded from the county program documentation index and are editable here. Income limits use the 2026 State Income Limits (Santa Clara County Area Median Income $205,500, 4-person household); reconfirm at each annual update. Post-Redesign Coordinated Entry System scoring thresholds are not yet published — the matcher works from eligibility facts only and never computes a score.</div>
+</main>
+</div>
+
+<script>
+(function(){
+
+"use strict";
+/* ============================================================
+   DETERMINISTIC ROUTING RULES — edit thresholds here
+   ============================================================ */
+const RULES = {
+  doorwayPrimaryMin: 40,   // >=40% AMI: Doorway is the primary path
+  doorwayConsiderMin: 20,  // 20–39%: use Doorway + consider alternatives
+                           // <20%: strongly consider alternatives
+  haWaitlistMax: 50,       // <=50% AMI: likely eligible for HA voucher waitlist
+  cesMax: 30               // <=30% AMI (or homeless flag): CES referral
+};
+
+/* 100% AMI for a 4-person household, by county.
+   Source: HCD 2026 State Income Limits (revised June 23, 2026, from
+   HUD FY2026 limits released May 1, 2026). Reconfirm annually. */
+const AMI_4P = {
+  "Santa Clara":205500, "San Francisco":200800, "San Mateo":200800, "Marin":200800,
+  "Alameda":162800, "Contra Costa":162800, "Sonoma":133400, "Napa":165400, "Solano":124600
+};
+/* HUD household-size adjustment factors (4-person = 1.00) */
+const HH_ADJ = {1:.70, 2:.80, 3:.90, 4:1.00, 5:1.08, 6:1.16, 7:1.24, 8:1.32};
+
+/* Housing authorities: county default + city carve-outs. */
+const HOUSING_AUTHORITIES = {
+  "Santa Clara":{default:{name:"Santa Clara County Housing Authority (SCCHA)",note:"Covers the whole county, including San José. Openings post as interest lists on the SCCHA Applicant Portal.",link:"https://www.scchousingauthority.org/section-8/"}, cities:{}},
+  "Alameda":{default:{name:"Housing Authority of the County of Alameda (HACA)",note:"Covers Alameda County except the four cities below, which run their own housing authorities.",link:null},
+    cities:{
+      "Oakland":{name:"Oakland Housing Authority (OHA)",note:"Oakland residents apply through OHA, not the county authority."},
+      "Berkeley":{name:"Berkeley Housing Authority (BHA)",note:"Berkeley residents apply through BHA, not the county authority."},
+      "Alameda":{name:"Housing Authority of the City of Alameda (AHA)",note:"City of Alameda residents apply through AHA, not the county authority."},
+      "Livermore":{name:"Livermore Housing Authority",note:"Livermore residents apply through the city's own authority."}
+    }},
+  "Contra Costa":{default:{name:"Housing Authority of the County of Contra Costa (HACCC)",note:"Covers the county except Richmond and Pittsburg, which run their own authorities.",link:null},
+    cities:{
+      "Richmond":{name:"Richmond Housing Authority",note:"Richmond residents apply through the city authority."},
+      "Pittsburg":{name:"Pittsburg Housing Authority",note:"Pittsburg residents apply through the city authority."}
+    }},
+  "San Francisco":{default:{name:"San Francisco Housing Authority (SFHA)",note:"City and county are the same jurisdiction.",link:null}, cities:{}},
+  "San Mateo":{default:{name:"Housing Authority of the County of San Mateo (HACSM)",note:"Countywide coverage.",link:null}, cities:{}},
+  "Marin":{default:{name:"Marin Housing Authority",note:"Countywide coverage.",link:null}, cities:{}},
+  "Sonoma":{default:{name:"Sonoma County Housing Authority",note:"Countywide except Santa Rosa, which runs its own authority.",link:null},
+    cities:{"Santa Rosa":{name:"Santa Rosa Housing Authority",note:"Santa Rosa residents apply through the city authority."}}},
+  "Napa":{default:{name:"City of Napa Housing Authority",note:"Administers vouchers countywide by agreement.",link:null}, cities:{}},
+  "Solano":{default:{name:"Solano County Housing Authority (SCHA)",note:"Administered by the City of Vacaville. Covers Dixon, Rio Vista, and unincorporated Solano County only — the five cities below run their own housing authorities.",link:null},
+    cities:{
+      "Vallejo":{name:"Vallejo Housing Authority",note:"Vallejo residents apply through the city authority, not the county one."},
+      "Fairfield":{name:"Fairfield Housing Authority",note:"Fairfield residents apply through the city authority, not the county one."},
+      "Vacaville":{name:"Vacaville Housing Authority",note:"Vacaville residents apply through the city's own voucher program (separate from the SCHA program the city administers for the county)."},
+      "Suisun City":{name:"Suisun City Housing Authority",note:"Suisun City residents apply through the city authority, not the county one."},
+      "Benicia":{name:"Benicia Housing Authority",note:"Benicia residents apply through the city authority, not the county one."}
+    }}
+};
+
+/* CES entry point per county (prototype covers Santa Clara in depth) */
+const CES_ACCESS = {
+  "Santa Clara":{how:"Call Here4You: (408) 385-2400. Open 9am–7pm every day.",extra:"Scared of losing your home? Ask about rent support."},
+  default:{how:"Call 2-1-1 and ask for housing support in your county.",extra:null}
+};
+
+const CITIES = {
+  "Santa Clara":["San José","Gilroy","Morgan Hill","Mountain View","Sunnyvale","Santa Clara","Palo Alto","Milpitas","Campbell","Other / unincorporated"],
+  "Alameda":["Oakland","Berkeley","Alameda","Livermore","Fremont","Hayward","San Leandro","Dublin","Other / unincorporated"],
+  "Contra Costa":["Richmond","Pittsburg","Concord","Walnut Creek","Antioch","Other / unincorporated"],
+  "San Francisco":["San Francisco"],
+  "San Mateo":["Daly City","San Mateo","Redwood City","East Palo Alto","South San Francisco","Other / unincorporated"],
+  "Marin":["San Rafael","Novato","Other / unincorporated"],
+  "Sonoma":["Santa Rosa","Petaluma","Other / unincorporated"],
+  "Napa":["Napa","American Canyon","Other / unincorporated"],
+  "Solano":["Vallejo","Fairfield","Vacaville","Suisun City","Benicia","Dixon","Rio Vista","Other / unincorporated"]
+};
+
+/* Fictional listing pool per county — the "property just applied to" */
+const LISTINGS = {
+  "Santa Clara":[["Willow Court Apartments","San José"],["Monterey Meadows","Gilroy"]],
+  "San Francisco":[["Mission Bay Commons","San Francisco"]],
+  "San Mateo":[["Station Park Green","San Mateo"],["Bayshore Terrace","Daly City"]],
+  "Marin":[["Novato Creekside","Novato"]],
+  "Alameda":[["Fruitvale Crossing","Oakland"],["Estuary Landing","Alameda"]],
+  "Contra Costa":[["Monument Gateway","Concord"],["Marina Vista Flats","Richmond"]],
+  "Sonoma":[["Roseland Village","Santa Rosa"]],
+  "Napa":[["Vine Trail Commons","Napa"]],
+  "Solano":[["Georgia Street Lofts","Vallejo"],["Heart of Fairfield Apartments","Fairfield"]]
+};
+
+/* The applicant record. In production this arrives from the submitted
+   Doorway application; here it is seeded for the demo. */
+let applicant = {hhSize:2, income:41000, county:"Santa Clara", city:"San José", homelessFlag:false, atRisk:false, veteran:false, dv:false};
+/* Profile fields that come with the submitted application (demo persona) */
+let profile = {
+  name:"Alex Rivera", dob:"04/12/1988", phone:"(408) 555-0173", email:"alex.rivera88@example.com",
+  street:"1181 Willow St", zip:"95125",
+  ada:"None", changes:"No", voucher:"None", voucherType:"—",
+  disability:"No", race:"Prefer not to respond", language:"English",
+  listing:"Willow Court Apartments", listingCity:"San José", submitted:"Aug 12, 2026"
+};
+
+const $ = id => document.getElementById(id);
+const fmt$ = n => "$" + Math.round(n).toLocaleString("en-US");
+
+function amiPct(a){
+  const base = AMI_4P[a.county] * (HH_ADJ[a.hhSize] || 1);
+  return {pct: Math.round(a.income / base * 100), base: base};
+}
+function bandOf(p){
+  if(p<=30) return {label:"Extremely low income (0–30% AMI)"};
+  if(p<=50) return {label:"Very low income (30–50% AMI)"};
+  if(p<=80) return {label:"Low income (50–80% AMI)"};
+  if(p<=120) return {label:"Moderate income (80–120% AMI)"};
+  return {label:"Above moderate income (120%+ AMI)"};
+}
+/* ruler maps 0–120% onto 0–100% width; bands at 30/50/80 sit at 25/41.7/66.7 */
+const rulerPos = p => Math.min(p,120)/120*100;
+
+function haFor(a){
+  const entry = HOUSING_AUTHORITIES[a.county];
+  if(!entry) return null;
+  const cityKey = a.city && a.city.replace(/^City of /,"");
+  if(entry.cities[cityKey]) return {...entry.cities[cityKey], carveout:true};
+  return {...entry.default, carveout:false};
+}
+
+const DOORS={
+  dw:{name:"Doorway",
+      icon:'<svg viewBox="0 0 46 46"><path d="M23 7 6 20h5v18h24V20h5L23 7z"/></svg>',
+      foot:"Doorway = apartments you apply for yourself."},
+  ha:{name:"Housing Authority",
+      icon:'<svg viewBox="0 0 46 46"><path d="M7 38h32M9 20h28v18H9zM23 6 7 15h32L23 6z"/><path d="M14 25v8M23 25v8M32 25v8"/></svg>',
+      foot:"Housing Authority = rent support. You join the waitlist yourself."},
+  ces:{name:"County housing support",
+      icon:'<svg viewBox="0 0 46 46"><path d="M23 39s-14-8.3-14-18a8 8 0 0 1 14-5 8 8 0 0 1 14 5c0 9.7-14 18-14 18z"/></svg>',
+      foot:"County support starts with a phone call — no form to fill out."}
+};
+function routeCard(doorKey, tagCls, tagText, title, why, nextHTML){
+  return {doorKey, tagCls, tagText, title, why, nextHTML};
+}
+function drawArrows(n){
+  const svg=document.getElementById("arrowSvg");
+  const xs = n===1?[350] : n===2?[176,524] : [118,350,582];
+  svg.innerHTML = xs.map(x=> x===350
+    ? `<path d="M350 0 L350 34" stroke="#B5B5B5" stroke-width="2" fill="none"/>`
+    : `<path d="M350 0 L350 12 L${x} 12 L${x} 34" stroke="#B5B5B5" stroke-width="2" fill="none"/>`).join("");
+}
+
+function unitPref(hh){
+  if(hh<=1) return "Studio, 1 bedroom";
+  if(hh===2) return "1 bedroom, 2 bedrooms";
+  if(hh===3) return "2 bedrooms, 3 bedrooms";
+  return "3 bedrooms, 4+ bedrooms";
+}
+function renderDetails(){
+  const a=applicant, {pct}=amiPct(a);
+  $("dListing").textContent=profile.listing;
+  $("dListingCity").textContent=profile.listingCity+", CA";
+  $("dConf").textContent=$("confNum").textContent;
+  $("dDate").textContent=profile.submitted;
+  $("dName").textContent=profile.name;
+  $("dDob").textContent=profile.dob;
+  $("dPhone").textContent=profile.phone+" (Cell)";
+  $("dEmail").textContent=profile.email;
+  $("dAddr").textContent=a.homelessFlag ? "No permanent address — contact by phone/email ("+a.city+" area)" : profile.street+", "+a.city+", CA "+profile.zip;
+  $("dHH").textContent=a.hhSize+(a.hhSize===1?" person":" people");
+  $("dUnit").textContent=unitPref(a.hhSize);
+  $("dAda").textContent=profile.ada;
+  $("dChg").textContent=profile.changes;
+  $("dVou").textContent=profile.voucher==="None" ? "No" : "Yes - has housing voucher/rental assistance";
+  $("dInc2").textContent=fmt$(a.income)+" per year";
+  $("dAmi2").textContent=pct+"% AMI";
+  $("dVouT").textContent=profile.voucher==="None" ? "—" : profile.voucherType;
+  $("dVet").textContent=a.veteran?"Yes":"No";
+  $("dHml").textContent=a.homelessFlag?"Yes":"No";
+  $("dDis").textContent=profile.disability;
+  $("dRace").textContent=profile.race;
+  $("dLang").textContent=profile.language;
+}
+function render(){
+  const a = applicant;
+  const {pct} = amiPct(a);
+  const band = bandOf(pct);
+
+  $("sHH").textContent = a.hhSize;
+  $("sInc").textContent = fmt$(a.income);
+  $("sCounty").childNodes[0].textContent = a.county + " County";
+  $("sCity").textContent = a.city || "";
+  $("sAmi").childNodes[0].textContent = pct + "%";
+  $("sBand").textContent = band.label.split(" (")[0];
+  $("amiTag").textContent = "You · " + pct + "%";
+  $("amiMarker").style.left = rulerPos(pct) + "%";
+  $("amiExplain").textContent =
+    `A ${a.hhSize}-person household in ${a.county} County earning ${fmt$(a.income)} a year is at about ${pct}% of the area median. ` +
+    (pct<=30 ? "Most of the region's support for households at this level flows through vouchers and Coordinated Entry rather than standard affordable listings."
+     : pct<=50 ? "Households at this level can qualify for both affordable listings and housing authority voucher waitlists."
+     : pct<=80 ? "Many Doorway listings are built for households right in this range."
+     : "Many Doorway listings serve this range; market-rate options may also be within reach.");
+
+  /* ---- Build referral cards, ordered by relevance ---- */
+  const cards = [];
+
+  // 1. Doorway guidance
+  if(pct >= RULES.doorwayPrimaryMin){
+    cards.push({order: 1, ...routeCard("dw","ok","Best place to start","Keep looking on Doorway",
+      `Most apartments here fit your income. New ones open all the time.`,
+      `<b>Do this:</b> Turn on email alerts at housingbayarea.org.`)});
+  } else if(pct >= RULES.doorwayConsiderMin){
+    cards.push({order: 2, ...routeCard("dw","dw","Also check here","Watch Doorway too",
+      `A few listings fit your income. The other doors matter more right now.`,
+      `<b>Do this:</b> Turn on email alerts at housingbayarea.org.`)});
+  } else {
+    cards.push({order: 3, ...routeCard("dw","dw","Check now and then","Doorway alone isn't enough",
+      `Very few listings fit your income right now. Start with the other doors.`,
+      `<b>Do this:</b> Check housingbayarea.org once in a while for its lowest-rent listings.`)});
+  }
+
+  // 2. Housing authority
+  if(pct <= RULES.haWaitlistMax){
+    const ha = haFor(a);
+    let next = `<b>Do this:</b> Join the waitlist with ${ha.name}. It's free, and the wait is long — so join today.`;
+    if(ha.carveout){
+      next += `<br><span style="color:var(--muted)">You live in ${a.city}, so sign up with the city's own housing authority.</span>`;
+    }
+    if(ha.link) next += `<br><a href="${ha.link}" target="_blank" rel="noopener">Sign up here →</a>`;
+    cards.push({order: pct<=RULES.cesMax ? 1.6 : 1.5, ...routeCard("ha","ha","You likely qualify","Get on the rent support waitlist",
+      `You pay about a third of your income. The voucher pays the rest.`,
+      next)});
+  }
+
+  // 3. CES (income proxy, homelessness, or at-risk of losing housing)
+  const cesTriggered = pct <= RULES.cesMax || a.homelessFlag || a.atRisk;
+  if(cesTriggered){
+    const ces = CES_ACCESS[a.county] || CES_ACCESS.default;
+    let reason;
+    if(a.homelessFlag) reason = `You told us you don't have a steady place to stay. Call — they can support you today.`;
+    else if(a.atRisk) reason = `You told us you might lose your home. Call — there's support to keep it.`;
+    else reason = `One free call connects you to rent support, a place to stay, and a real person.`;
+    let next = `<b>Do this:</b> ${ces.how}`;
+    const extras=[];
+    if(ces.extra) extras.push(ces.extra);
+    if(a.veteran) extras.push("Say you're a veteran — there's extra support for you.");
+    if(extras.length) next += `<br>${extras.join("<br>")}`;
+    cards.push({order: a.homelessFlag ? 0.5 : (a.atRisk ? 0.7 : 1.7), ...routeCard("ces","ces", (a.homelessFlag||a.atRisk) ? "Start here first" : "You likely qualify","Call for housing support",reason,next)});
+  }
+
+  // 4. DV safety banner — hotline-only by design; shelter locations are confidential
+  const safetyEl=document.getElementById("safetyRow");
+  if(a.dv){
+    const lines = a.county==="Santa Clara"
+      ? `<b>24/7 hotlines:</b> YWCA Golden Gate Silicon Valley (800) 572-2782 · Next Door Solutions (408) 279-2962`
+      : `<b>24/7 hotline:</b> National Domestic Violence Hotline (800) 799-7233`;
+    safetyEl.innerHTML=`<div class="safety"><span class="stag">Private support</span><span class="sbody">You're not alone. Free, private support is one call away — any income, day or night. ${lines}</span></div>`;
+  } else safetyEl.innerHTML="";
+
+  cards.sort((x,y)=>x.order-y.order);
+  renderDetails();
+  drawArrows(cards.length);
+  $("routes").innerHTML = cards.map((c,i)=>{
+    const d=DOORS[c.doorKey];
+    return `
+    <div class="step">
+      <div class="stepnum">${i+1}</div>
+      <div class="stepcard">
+        <span class="dico">${d.icon}</span>
+        <div class="doorname">${d.name}</div>
+        <div class="steptag ${c.tagCls}">${c.tagText}</div>
+        <h3>${c.title}</h3>
+        <p class="why">${c.why}</p>
+        <div class="next">${c.nextHTML}</div>
+        <div class="footline">${d.foot}</div>
+      </div>
+    </div>`}).join("");
+}
+
+/* ---- Prototype controls ---- */
+function initProto(){
+  const cSel = $("pCounty"), citySel = $("pCity");
+  cSel.innerHTML = Object.keys(AMI_4P).map(c=>`<option ${c===applicant.county?"selected":""}>${c}</option>`).join("");
+  function fillCities(){
+    const list = CITIES[cSel.value] || ["Other / unincorporated"];
+    citySel.innerHTML = list.map(c=>`<option ${c===applicant.city?"selected":""}>${c}</option>`).join("");
+  }
+  fillCities();
+  function sync(){
+    applicant = {
+      hhSize: Math.min(8, Math.max(1, parseInt($("pHH").value)||1)),
+      income: Math.max(0, parseInt($("pInc").value)||0),
+      county: cSel.value,
+      city: citySel.value,
+      homelessFlag: $("pHomeless").checked,
+      atRisk: $("pAtRisk").checked,
+      veteran: $("pVet").checked,
+      dv: $("pDv").checked
+    };
+    render();
+  }
+  cSel.addEventListener("change", ()=>{ fillCities(); sync(); });
+  ["pHH","pInc","pCity","pHomeless","pAtRisk","pVet","pDv"].forEach(id=>$(id).addEventListener("input", sync));
+  window.__syncProtoFromApplicant = function(){
+    $("pHH").value=applicant.hhSize; $("pInc").value=applicant.income;
+    cSel.value=applicant.county; fillCities(); citySel.value=applicant.city;
+    $("pHomeless").checked=applicant.homelessFlag; $("pAtRisk").checked=applicant.atRisk;
+    $("pVet").checked=applicant.veteran; $("pDv").checked=applicant.dv;
+  };
+}
+
+/* ---- Demo applicant generator: cycles the 9 counties in order ---- */
+const GEN_FIRST=["Maria","Vinh","Aisha","Wei","Rosa","Devon","Linh","Carlos","Fatima","Grace","Miguel","Ana","Priya","Jae","Elena","Marcus","Thao","Diego","Nia","Hector","Mei","Omar","Leilani","Raymond","Sofia","Andre","Huong","Jasmine","Kai","Guadalupe"];
+const GEN_LAST=["Nguyen","Garcia","Tran","Hernandez","Lee","Johnson","Martinez","Pham","Kim","Lopez","Washington","Flores","Chen","Rodriguez","Patel","Vo","Ramirez","Brown","Le","Santos","Ortiz","Jackson","Wong","Rivera","Singh","Diaz","Yee","Cruz","Ali","Reyes"];
+const COUNTY_ORDER=Object.keys(AMI_4P);
+let genIdx=0;
+const wpickM=pairs=>{let r=Math.random()*pairs.reduce((s,p)=>s+p[1],0);for(const p of pairs){r-=p[1];if(r<=0)return p[0]}return pairs[0][0]};
+function generateApplicant(){
+  const county=COUNTY_ORDER[genIdx%COUNTY_ORDER.length];
+  genIdx++;
+  const cities=(CITIES[county]||[]).filter(c=>!c.startsWith("Other"));
+  const city=cities.length?cities[Math.floor(Math.random()*cities.length)]:"Other / unincorporated";
+  const hh=wpickM([[1,28],[2,26],[3,18],[4,16],[5,8],[6,4]]);
+  const target=wpickM([[12,18],[25,22],[42,20],[60,22],[85,12],[105,6]]);
+  const pct=Math.max(4,target+Math.round(Math.random()*14-7));
+  const income=Math.round(pct/100*AMI_4P[county]*(HH_ADJ[hh]||1)/100)*100;
+  const homeless=pct<=28&&Math.random()<.35;
+  applicant={
+    hhSize:hh, income, county, city,
+    homelessFlag:homeless,
+    atRisk:!homeless&&pct<=45&&Math.random()<.35,
+    veteran:Math.random()<.09,
+    dv:Math.random()<.09
+  };
+  $("confNum").textContent="DW-2026-"+String(Math.floor(100000+Math.random()*900000));
+  /* build the persona profile */
+  const first=GEN_FIRST[Math.floor(Math.random()*GEN_FIRST.length)], last=GEN_LAST[Math.floor(Math.random()*GEN_LAST.length)];
+  const streets=["Willow St","Mission Blvd","2nd St","Alum Rock Ave","Sonoma Hwy","Tennessee St","Foothill Blvd","Main St","El Camino Real","MacArthur Blvd","Monterey Rd","Jefferson St"];
+  const hasVoucher=Math.random()<.2;
+  const listPool=LISTINGS[county]||[["Willow Court Apartments",city]];
+  const listing=listPool[Math.floor(Math.random()*listPool.length)];
+  const dobY=1955+Math.floor(Math.random()*49), dobM=String(1+Math.floor(Math.random()*12)).padStart(2,"0"), dobD=String(1+Math.floor(Math.random()*28)).padStart(2,"0");
+  const ac=["408","415","510","650","707","925","669","628"][Math.floor(Math.random()*8)];
+  const subDate=new Date(2026,7,14-Math.floor(Math.random()*6));
+  profile={
+    name:first+" "+last, dob:dobM+"/"+dobD+"/"+dobY,
+    phone:"("+ac+") 555-0"+String(100+Math.floor(Math.random()*900)).slice(0,3),
+    email:(first+"."+last).toLowerCase().replace(/[^a-z.]/g,"")+String(Math.floor(Math.random()*90)+10)+"@example.com",
+    street:String(100+Math.floor(Math.random()*9800))+" "+streets[Math.floor(Math.random()*streets.length)],
+    zip:(Math.random()<.5?"94":"95")+String(100+Math.floor(Math.random()*899)),
+    ada:Math.random()<.12?"Mobility":"None",
+    changes:Math.random()<.1?"Yes":"No",
+    voucher:hasVoucher?"Yes":"None",
+    voucherType:hasVoucher?(Math.random()<.5?"Section 8 / Housing Authority voucher":"Other rental assistance"):"—",
+    disability:Math.random()<.18?"Yes - has physical disability":"No",
+    race:["Asian","Latino","White","Black/African American","Pacific Islander","Indigenous","Other/Multiracial","Prefer not to respond"][Math.floor(Math.random()*8)],
+    language:["English","English","English","Spanish","Spanish","Vietnamese","Cantonese","Mandarin","Tagalog","Korean"][Math.floor(Math.random()*10)],
+    listing:listing[0], listingCity:listing[1],
+    submitted:subDate.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})
+  };
+  $("listingName").textContent=profile.listing;
+  const name=profile.name;
+  const tags=[applicant.homelessFlag&&"homeless",applicant.atRisk&&"at risk",applicant.veteran&&"veteran",applicant.dv&&"DV survivor"].filter(Boolean);
+  $("genInfo").innerHTML=`<b>${name}</b> — ${county} County (${((genIdx-1)%COUNTY_ORDER.length)+1} of ${COUNTY_ORDER.length})${tags.length?" · "+tags.join(", "):""}`;
+  window.__syncProtoFromApplicant();
+  render();
+}
+document.getElementById("genApplicant").addEventListener("click",generateApplicant);
+
+render();       // deterministic — computed on page load, no button
+initProto();
+
+})();
+</script>
+
+<script>
+(function(){
+"use strict";
+const AMI_4P = 205500; // Santa Clara County 100% AMI, 4-person — HCD 2026 State Income Limits (rev. June 2026); reconfirm annually
+const HH_ADJ = {1:.70,2:.80,3:.90,4:1.00,5:1.08,6:1.16,7:1.24,8:1.32};
+const amiPct = (income,hh)=>Math.round(income/(AMI_4P*(HH_ADJ[hh]||1))*100);
+
+const CITIES = ["San José","Gilroy","Morgan Hill","Mountain View","Sunnyvale","Santa Clara","Palo Alto","Milpitas","Campbell","Cupertino"];
+const fmt$ = n=>"$"+Math.round(n).toLocaleString("en-US");
+const $ = id=>document.getElementById(id);
+const RESOURCES = [
+ // Prevention & diversion
+ {name:"Homelessness Prevention System (HPS)",cat:"Prevention",desc:"Countywide financial assistance and case management for households at imminent risk of homelessness. 19 partner agencies; Sacred Heart coordinates.",link:"https://preventhomelessness.org/",needs:"atRisk",amiMax:80,pop:[]},
+ {name:"Sacred Heart — Housing & Financial Assistance",cat:"Prevention",desc:"Rent and deposit assistance; eligibility varies by funding source and zip code.",link:"https://www.sacredheartcs.org/programs-housing-financial-assistance",needs:"atRisk",amiMax:80,pop:[]},
+ {name:"Sunnyvale Community Services — HPS",cat:"Prevention",desc:"HPS partner serving Sunnyvale residents.",link:"https://svcommunityservices.org/hps/",needs:"atRisk",amiMax:80,pop:[],geo:"Sunnyvale"},
+ // Shelter & interim
+ {name:"Here4You Hotline — shelter placement",cat:"Shelter",desc:"County shelter hotline, (408) 385-2400, 9am–7pm daily. The entry point for emergency shelter beds.",link:"https://www.billwilsoncenter.org/services/all/here4you.html",needs:"homeless",amiMax:null,pop:[]},
+ {name:"OSH — Temporary & Emergency Shelter",cat:"Shelter",desc:"All-populations shelter directory and entry rules.",link:"https://osh.santaclaracounty.gov/shelter-and-housing-support/temporary-and-emergency-shelter",needs:"homeless",amiMax:null,pop:[]},
+ {name:"LifeMoves — interim housing & safe parking",cat:"Shelter",desc:"Interim housing sites, safe parking, motel vouchers.",link:"https://lifemoves.org/get-help/",needs:"homeless",amiMax:null,pop:[]},
+ {name:"City of Gilroy — Emergency Housing",cat:"Shelter",desc:"South County shelter access for Gilroy-area households.",link:"https://www.cityofgilroy.org/286/Emergency-Housing",needs:"homeless",amiMax:null,pop:[],geo:"Gilroy"},
+ {name:"HomeFirst — Veteran shelter & GPD",cat:"Shelter",desc:"Veteran-dedicated shelter beds and Grant & Per Diem transitional beds (GPD is VA-funded); first-come general beds available regardless of discharge.",link:"https://www.homefirstscc.org/veteran-services",needs:"homeless",amiMax:null,pop:["vet"],vaFunded:true},
+ {name:"Reentry — shelter & housing information",cat:"Shelter",desc:"Shelter navigation for people leaving custody.",link:"https://reentry.santaclaracounty.gov/services/find-shelter-and-housing-information",needs:"homeless",amiMax:null,pop:["reentry"]},
+ // CES core
+ {name:"Coordinated Entry — Get Assessed",cat:"Coordinated Entry",desc:"The CES front door: housing needs assessment and community queue placement for supportive housing programs.",link:"https://osh.santaclaracounty.gov/housing-and-shelter-support/shelter-and-housing-support/housing-support/coordinated-entry-get",needs:"housingCrisis",amiMax:30,pop:[],access:"You are here — this is the assessment being completed"},
+ {name:"Rapid Rehousing (RRH) programs",cat:"Coordinated Entry",desc:"Time-limited rental subsidy + case management for literally homeless households (Category 1/4); includes DV transfer provisions.",link:"https://files.santaclaracounty.gov/exjcpb1571/migrated/RRH%20Operations%20Manual%20-%202021.pdf",needs:"homeless",amiMax:30,pop:[],boost:["dv","kids"],queueGated:true},
+ {name:"Permanent Supportive Housing (via community queue)",cat:"Coordinated Entry",desc:"Long-term subsidy + services, prioritized for chronic homelessness with a disabling condition.",link:"https://osh.santaclaracounty.gov/supportive-housing-map",needs:"homeless",amiMax:30,pop:[],boost:["disability"],chronicRelevant:true,queueGated:true},
+ {name:"Project Welcome Home",cat:"Coordinated Entry",desc:"PSH for chronically homeless frequent utilizers of health and justice systems (Abode + ACT team).",link:"https://osh.santaclaracounty.gov/solutions-homelessness/special-initiatives/project-welcome-home",needs:"homeless",amiMax:30,pop:["disability"],chronicRelevant:true,queueGated:true,frequentUtilizer:true},
+ // Youth
+ {name:"Bill Wilson Center — Transitional Housing (18–24)",cat:"Youth",desc:"Transitional housing for young adults, referred through the County Queue.",link:"https://www.billwilsoncenter.org/services/all/housing.html",needs:"homeless",amiMax:null,pop:["tay"],queueGated:true},
+ {name:"Bill Wilson Center — THP-Plus",cat:"Youth",desc:"Housing for former foster youth ages 18–24.",link:"https://www.billwilsoncenter.org/services/all/thp-plus.html",needs:null,amiMax:null,pop:["foster"]},
+ {name:"Bill Wilson Center — THPP (16–18)",cat:"Youth",desc:"Placement program for current foster youth 16–18, via DFCS referral.",link:"https://www.billwilsoncenter.org/services/all/placement.html",needs:null,amiMax:null,pop:["foster"]},
+ // Vouchers
+ {name:"SCCHA — Section 8 / HCV interest lists",cat:"Vouchers",desc:"Housing Choice Voucher interest lists via the SCCHA Applicant Portal; live/work preference applies.",link:"https://www.scchousingauthority.org/section-8/",needs:null,amiMax:50,pop:[]},
+ {name:"SCCHA — special referral vouchers (EHV, VASH, FUP, FYI)",cat:"Vouchers",desc:"Referral-only vouchers reached through CES access points — emergency vouchers, veteran (VASH), family unification, foster youth (FYI).",link:"https://www.scchousingauthority.org/section-8/for-participants/for-new-applicants/",needs:null,amiMax:50,pop:[],boost:["vet","dv","foster","tay","kids"]},
+ {name:"SCCHA — site-based PBV waitlists (13 MTW properties)",cat:"Vouchers",desc:"Project-based voucher waitlists at properties like Helzer Courts and Blossom River; 30-day vacancy referral process.",link:"https://www.scchousingauthority.org/wp-content/uploads/2026/05/HCV-Administrative-Plan-eff-4.30.2026.pdf",needs:null,amiMax:50,pop:[]},
+ // Affordable listings
+ {name:"Doorway — affordable listings",cat:"Affordable listings",desc:"Bay Area affordable listing portal; most listings serve 30–80% AMI.",link:"https://housingbayarea.org",needs:null,amiMax:null,pop:[],doorwaySweet:true},
+ // Population-specific
+ {name:"YWCA Golden Gate SV — Housing Continuum for Survivors",cat:"Domestic violence",desc:"Survivor-specific housing continuum; 24/7 hotline 800-572-2782. Shelter locations confidential — always use the hotline.",link:"https://yourywca.org/our-services/housing-continuum-for-survivors/",needs:null,amiMax:null,pop:["dv"],boost:["fleeing"]},
+ {name:"Next Door Solutions",cat:"Domestic violence",desc:"DV services and emergency options; hotline 408-279-2962.",link:"https://www.nextdoorsolutions.org/",needs:null,amiMax:null,pop:["dv"],boost:["fleeing"]},
+ {name:"Destination: Home — All the Way Home",cat:"Veterans",desc:"Countywide campaign to house veterans; landlord incentives and navigation.",link:"https://destinationhomesv.org/all-the-way-home/",needs:"housingCrisis",amiMax:null,pop:["vet"]},
+ {name:"Goodwill SV — SSVF Veteran Family Services",cat:"Veterans",desc:"Supportive Services for Veteran Families (VA-funded): prevention + rapid rehousing for very-low-income veteran households.",link:"https://goodwillsv.org/vfs-program/",needs:"housingCrisis",amiMax:50,pop:["vet"],vaFunded:true},
+ {name:"Reentry Resource Guide — service linkage",cat:"Reentry",desc:"Housing-adjacent services for justice-involved residents; explicit RRH/PSH eligibility gates documented.",link:"https://reentry.santaclaracounty.gov/additional-resources/reentry-resource-guide/service-linkage",needs:null,amiMax:null,pop:["reentry"]},
+ {name:"Institute on Aging — CalAIM Santa Clara",cat:"Seniors & disability",desc:"CalAIM enhanced care management and housing supports for older adults and adults with disabilities. Medi-Cal benefit.",link:"https://www.ioaging.org/services/calaim-santa-clara/",needs:null,amiMax:null,requiresMedicaid:true,pop:["senior","disability"]},
+ {name:"San José — HOPWA PSH",cat:"HIV/AIDS",desc:"Housing Opportunities for Persons With AIDS: supportive housing grant program.",link:"https://www.sanjoseca.gov/your-government/departments-offices/housing/nonprofit-grant-programs/hopwa-psh",needs:null,amiMax:80,pop:["hiv"]},
+ {name:"SCFHP — CalAIM Community Supports (housing trio)",cat:"Health-funded",desc:"Medi-Cal-funded housing transition navigation, deposits, and tenancy sustaining services.",link:"https://www.scfhp.com/for-providers/communitysupports-cs-healthhomes-hhp/",needs:null,amiMax:null,requiresMedicaid:true,pop:[]},
+ {name:"UPLIFT — transit passes",cat:"Supportive services",desc:"Free quarterly VTA passes for clients experiencing or at risk of homelessness, via enrolled case managers.",link:"https://scc.bitfocus.com/uplift",needs:"housingCrisis",amiMax:null,pop:[]},
+ {name:"MyConnectSV — client HMIS portal",cat:"Supportive services",desc:"Client-facing portal: message case managers, view service history, keep contact info current. Peer Support (650) 209-0653.",link:"https://osh.santaclaracounty.gov/continuum-care/connect-case-managers-using-myconnectsv",needs:"housingCrisis",amiMax:null,pop:[]}
+];
+const SHELF = [
+ ["CoC Quality Assurance Standards (Aug 2024) — PSH/RRH/TH eligibility & CE policies","https://files.santaclaracounty.gov/exjcpb1571/2025-01/scc-coc-quality-assurance-standards_august-2024.pdf?VersionId=xPDrjjHzZdZFMYgjRb1l15n4R.Em.KKB"],
+ ["Coordinated Entry FAQ — non-access-point providers","https://files.santaclaracounty.gov/migrated/FAQ%20non-access%20point%20providers%202-12-2024.pdf?VersionId=h7kbW1xV3DrH3PU3bZk02qJZ0cnUJlf7"],
+ ["CES Redesign / Prioritization Committee report","https://eservices.sccgov.org/OffAgenda/Home/ViewFile/1145"],
+ ["Bitfocus — Forms & Manuals hub (current VI-SPDAT variants, HPAT, SOPs)","https://scc.bitfocus.com/forms-manuals"],
+ ["Bitfocus — Coordinated Entry workflow & Community Queue manuals","https://scc.bitfocus.com/coordinated-entry"],
+ ["HMIS Data Standards Manual FY2024 (HUD)","https://files.hudexchange.info/resources/documents/HMIS-Data-Standards-Manual-2024.pdf"],
+ ["HPS Operations Manual (Nov 2024)","https://s3.amazonaws.com/cdn.catalog.results4america.org/content/uploads/documents/HPS-Operations-Manual-November-2024.pdf"],
+ ["RRH Operations Manual (2021)","https://files.santaclaracounty.gov/exjcpb1571/migrated/RRH%20Operations%20Manual%20-%202021.pdf"],
+ ["SCCHA HCV Administrative Plan (eff. 4/30/2026)","https://www.scchousingauthority.org/wp-content/uploads/2026/05/HCV-Administrative-Plan-eff-4.30.2026.pdf"],
+ ["SCCHA FY2026 MTW Annual Plan (waitlist structure, PBV pipeline)","https://www.scchousingauthority.org/wp-content/uploads/2025/08/FY2026-MTW-Annual-Plan.pdf"],
+ ["SH Dashboard — Temporary Housing & Prevention Report (Feb 2026)","https://files.santaclaracounty.gov/exjcpb1571/2026-02/sh-dashboard_temporary-housing-and-prevention-report_february-2026.pdf?VersionId=dHaUG9SQHGdHLvsTTSx1NBFgJrDxu62H"],
+ ["HUD CPD-17-01 — Coordinated Entry requirements","https://www.hud.gov/sites/documents/17-01cpdn.pdf"],
+ ["HUD CPD-16-11 — PSH prioritization","https://www.hud.gov/sites/documents/16-11cpdn.pdf"],
+ ["2026 State Income Limits — HCD (rev. June 2026; SCC AMI $205,500)","https://www.hcd.ca.gov/sites/default/files/docs/grants-and-funding/income-limits-2026.pdf"],
+ ["OSH — Grievance procedures (client appeal rights)","https://osh.santaclaracounty.gov/continuum-care/grievance-procedures"]
+];
+
+const CUSTOM_RESOURCES=[];
+function household(){
+  const ls=$("mLS").value, age=$("mAge").value, dv=$("mDv").checked, fleeing=$("mFleeing").checked&&dv;
+  const literallyHomeless=["Emergency shelter","Transitional housing / Safe Haven","Outdoors / place not meant for habitation","Vehicle"].includes(ls);
+  return {
+    hh: Math.min(8,Math.max(1,parseInt($("mHH").value)||1)),
+    income: Math.max(0,parseInt($("mInc").value)||0),
+    city: $("mCity").value,
+    ls, dv, fleeing,
+    cat4: fleeing,                                    // HUD Category 4: fleeing DV
+    homeless: literallyHomeless,
+    atRisk: ls==="At risk of losing housing" || ls==="Couch surfing / doubled up",
+    yearsHomeless: Math.max(0,parseInt($("mYears").value)||0),
+    vet:$("mVet").checked,
+    dischargeOk: $("mDischarge").value!=="Other than honorable / Dishonorable",
+    tay: age==="18–24 (TAY)", senior: age==="62+",
+    foster:$("mFoster").checked, reentry:$("mJustice").checked||$("mQ7").checked,
+    disability:$("mDisability").checked, hiv:$("mHiv").checked, kids:$("mKids").checked,
+    medicaid: $("mIns").value==="Medicaid (Medi-Cal)",
+    queue: $("mQueue").value,
+    monthsSincePerm: Math.max(0,parseInt($("mMonths").value)||0),
+    episodes: Math.max(0,parseInt($("mEpisodes").value)||0),
+    util: Math.max(0,parseInt($("mUtil").value)||0),
+    coercion: $("mQ8").checked, pendingLegal: $("mQ7").checked,
+    pregnant: $("mQ17").checked,
+    behavioral: $("mQ18").checked||$("mQ19").checked||$("mQ20").checked||$("mQ21").checked||$("mQ22").checked,
+    otherText: $("mOther").value.trim()
+  };
+}
+function evalResource(r,h,ami){
+  // hard gates
+  if(r.pop && r.pop.length && !r.pop.some(p=>h[p])) return {tier:"no",why:"Serves "+r.pop.map(p=>({dv:"DV survivors",vet:"veterans",tay:"transition-age youth",foster:"foster youth",reentry:"reentry",disability:"people with disabilities",hiv:"people living with HIV/AIDS",senior:"seniors"}[p])).join(" / ")+" — not indicated for this household"};
+  if(r.queueGated && h.queue==="no") return {tier:"no",why:"Queue-managed program — this assessment routed to the community-resources pathway (0–3 script), so PSH/RRH/TH placement isn't available this cycle. Reassess if circumstances change"};
+  if(r.vaFunded && !h.dischargeOk) return {tier:"no",why:"VA-funded — requires an other-than-dishonorable discharge. Non-VA veteran programs like All the Way Home remain available"};
+  if(r.requiresMedicaid && !h.medicaid) return {tier:"no",why:"Requires Medi-Cal enrollment — CalAIM housing supports are Medi-Cal benefits"};
+  if(r.needs==="homeless" && !(h.homeless||h.cat4)) return {tier:"no",why:"Requires literal homelessness per housing history, or fleeing DV (Category 4)"};
+  if(r.needs==="atRisk" && !(h.atRisk||h.homeless||h.cat4)) return {tier:"no",why:"For households at risk of losing housing"};
+  if(r.needs==="housingCrisis" && !(h.homeless||h.atRisk||h.cat4)) return {tier:"no",why:"Requires an active housing crisis (homeless, at risk, or fleeing DV)"};
+  if(r.amiMax!=null && ami>r.amiMax) return {tier:"no",why:"Household income ("+ami+"% AMI) is above the ~"+r.amiMax+"% program ceiling"};
+  if(r.geo && h.city!==r.geo) return {tier:"no",why:"Serves "+r.geo+" residents"};
+  // scoring — reasons are written out so the chip reads as a real recommendation
+  const PN={dv:"DV survivors",vet:"veteran households",tay:"transition-age youth (18–24)",foster:"foster youth",reentry:"reentry households",disability:"people with disabilities",hiv:"people living with HIV/AIDS",senior:"older adults",kids:"families with children",fleeing:"households currently fleeing DV"};
+  let score=0, reasons=[];
+  if(r.pop && r.pop.length){
+    const m=r.pop.filter(p=>h[p]).map(p=>PN[p]);
+    score+=3; reasons.push("designed specifically for "+m.join(" and ")+", which matches this household");
+  }
+  if(r.amiMax!=null){score+=1;reasons.push("income ("+ami+"% AMI) is under the ~"+r.amiMax+"% program ceiling")}
+  if(r.geo && h.city===r.geo){score+=2;reasons.push("serves "+r.geo+", where this household lives")}
+  if(r.boost){
+    const mb=r.boost.filter(p=>h[p]).map(p=>PN[p]||p);
+    if(mb.length){score+=2;reasons.push("priority factors present: "+mb.join(", "))}
+  }
+  if(r.needs==="homeless" && h.cat4 && !h.homeless){score+=2;reasons.push("currently fleeing DV — qualifies as HUD Category 4 homelessness")}
+  else if(r.needs==="homeless" && h.homeless){score+=1;reasons.push("housing history — "+h.ls.toLowerCase()+" — meets the homelessness requirement")}
+  else if(r.needs && (h.homeless||h.atRisk||h.cat4)){score+=1;reasons.push("meets the active-housing-crisis requirement")}
+  if(r.queueGated){
+    if(h.queue==="yes"){score+=1;reasons.push("household is on the community queue — placement into this program type happens through queue matching, not direct application")}
+    else reasons.push("requires a community-queue referral once the assessment is entered in HMIS")
+  }
+  const chronicPattern = h.disability && (h.yearsHomeless>=1 || h.monthsSincePerm>=12 || h.episodes>=4);
+  if(r.chronicRelevant && (h.homeless||h.cat4) && chronicPattern){score+=2;reasons.push("housing history plus a disabling condition is consistent with HUD chronic-homelessness prioritization — verify against the full definition")}
+  if(r.frequentUtilizer && h.util>=4){score+=2;reasons.push(h.util+" emergency-system contacts in 6 months — matches this program's frequent-utilizer target population")}
+  if(r.chronicRelevant && h.behavioral){score+=1;reasons.push("wellness responses indicate service needs supportive housing is built around")}
+  if(h.pregnant && ["Prevention","Shelter","Coordinated Entry"].includes(r.cat)){score+=1;reasons.push("currently pregnant — flag for family-pathway prioritization")}
+  if(h.coercion && r.cat==="Domestic violence"){score+=1;reasons.push("coercion/trafficking indicators — hotline advocates handle safety planning")}
+
+  if(r.doorwaySweet){ if(ami>=40){score+=2;reasons.push("income sits in the range most listings serve (30–80% AMI)")} else {reasons.push("few listings serve this income level — pair with the referrals above")} }
+  const tier = score>=3 ? "strong":"likely";
+  return {tier, why: (tier==="strong"?"High match — ":"Medium match — ")+(reasons.length? reasons.join("; ") : "no disqualifying criteria found; verify eligibility with the program"), score};
+}
+function fillReplaceTargets(){
+  $("upTarget").innerHTML = RESOURCES.map((r,i)=>`<option value="${i}">${r.name}</option>`).join("");
+}
+function addCustomResource(){
+  const mode=$("upMode").value;
+  const f=$("upFile").files[0];
+  const name=$("upName").value.trim(), cat=$("upCat").value.trim(),
+        desc=$("upDesc").value.trim(), why=$("upWhy").value.trim(), link=$("upLink").value.trim();
+  if(mode==="replace"){
+    const r=RESOURCES[parseInt($("upTarget").value)];
+    if(!r){ $("upMsg").textContent="Pick a resource to update."; return; }
+    if(!f && !link && !name && !desc){ $("upMsg").textContent="Upload a revised file, or change the link/name/description."; return; }
+    if(name) r.name=name;
+    if(desc) r.desc=desc;
+    if(cat) r.cat=cat;
+    if(link) r.link=link; else if(f) r.link=URL.createObjectURL(f);
+    r.updatedOn="Aug 14, 2026";
+    $("upMsg").textContent=`Updated “${r.name}”. Eligibility tags preserved.`;
+  } else {
+    if(!name){ $("upMsg").textContent="Give the resource a name."; return; }
+    if(!f && !link){ $("upMsg").textContent="Upload a file or provide a link."; return; }
+    CUSTOM_RESOURCES.push({name, cat:"Uploaded · "+(cat||"Uploaded"), desc:desc||(f?f.name:""),
+      link: link || URL.createObjectURL(f), customWhy: why||"Added by your organization", custom:true});
+    $("upMsg").textContent="Added. It now appears under “Medium Match”.";
+  }
+  ["upName","upCat","upDesc","upWhy","upLink"].forEach(id=>$(id).value="");
+  $("upFile").value="";
+  fillReplaceTargets();
+  if(matchesGenerated) renderResources();
+  else $("upMsg").textContent+=" It will appear once you generate matches.";
+}
+const ACCESS_BY_CAT={
+  "Coordinated Entry":"Community queue — auto-matched, no direct application",
+  "Shelter":"Hotline / direct — assessor or client can call today",
+  "Prevention":"Direct referral — warm hand-off to the agency",
+  "Vouchers":"Self-serve — help the client join the list before they leave",
+  "Affordable listings":"Self-serve — apply listing by listing with the client",
+  "Domestic violence":"Hotline only — locations confidential, never share addresses",
+  "Veterans":"Direct referral — name the veteran status when connecting",
+  "Youth":"Queue / DFCS referral",
+  "Seniors & disability":"Via the client's Medi-Cal managed-care plan",
+  "Health-funded":"Via the client's Medi-Cal managed-care plan",
+  "HIV/AIDS":"Direct referral",
+  "Reentry":"Direct referral",
+  "Supportive services":"Enrolled through a case manager"
+};
+let matchesGenerated=false;
+function generateMatches(){
+  $("genMatches").disabled=true;
+  $("genMsg").textContent="Generating matches — AI-assisted retrieval, rules-based eligibility gates…";
+  setTimeout(()=>{
+    matchesGenerated=true;
+    renderResources();
+    $("genMatches").disabled=false;
+    $("genMsg").textContent="Matches generated. Change any input and regenerate to refresh.";
+  }, 800);
+}
+function markDirty(){
+  if(matchesGenerated) $("genMsg").textContent="Inputs changed — select Generate resource matches to refresh.";
+}
+function renderResources(){
+  if(!matchesGenerated){
+    $("mSummary").innerHTML="Enter the assessment inputs above, then select <b>Generate resource matches</b>. Results are produced on request, not filtered live.";
+    ["tierStrong","tierLikely","tierNo"].forEach(id=>$(id).style.display="none");
+    return;
+  }
+  const h=household(), ami=amiPct(h.income,h.hh);
+  const flagsOn=["dv","fleeing","vet","homeless","atRisk","tay","foster","reentry","disability","hiv","senior","kids","medicaid"].filter(k=>h[k]);
+  const FL={dv:"DV survivor",fleeing:"currently fleeing (Cat 4)",vet:"veteran",homeless:"literally homeless",atRisk:"at risk / unstably housed",tay:"TAY 18–24",foster:"foster youth",reentry:"justice history",disability:"disability",hiv:"HIV/AIDS program interest",senior:"senior 62+",kids:"children in household",medicaid:"Medi-Cal enrolled"};
+  const track = h.kids ? "VI-SPDAT for Families" : (h.tay ? "TAY VI-SPDAT" : "VI-SPDAT for Single Adults");
+  $("mSummary").innerHTML = `Reading this as: a <b>${h.hh}-person household</b> in <b>${h.city}</b> earning <b>${fmt$(h.income)}/yr</b> ≈ <b>${ami}% AMI</b> (${ami<=30?"extremely low income":ami<=50?"very low income":ami<=80?"low income":"moderate+"}), sleeping situation: <b>${h.ls.toLowerCase()}</b>${h.yearsHomeless?`, <b>${h.yearsHomeless} yr${h.yearsHomeless>1?"s":""} homeless</b>`:""}`+(flagsOn.length?`, flagged: <b>${flagsOn.map(k=>FL[k]).join(", ")}</b>.`:".")+` Assessment track: <b>${track}</b>.`+(h.otherText?` Notes: <b>${h.otherText}</b>.`:"");
+  const groups={strong:[],likely:[],no:[]};
+  RESOURCES.forEach(r=>{const e=evalResource(r,h,ami);groups[e.tier].push({r,e})});
+  CUSTOM_RESOURCES.forEach((r,i)=>groups.likely.unshift({r,e:{tier:"likely",why:r.customWhy},ci:i}));
+  groups.strong.sort((a,b)=>(b.e.score||0)-(a.e.score||0));
+  const card=({r,e,ci},cls)=>`<div class="res ${cls}"><div class="cat">${r.cat}${r.updatedOn?` · <span style="color:var(--ok)">Updated ${r.updatedOn}</span>`:""}</div><h4>${r.name}</h4><p>${r.desc}</p><div class="why">${e.why}</div><div class="access">${r.access||ACCESS_BY_CAT[r.cat.replace(/^Uploaded · /,"")]||"Direct referral"}</div><a href="${r.link}" target="_blank" rel="noopener">Open resource →</a>${r.custom?` <a href="#" data-rmcustom="${ci}" style="color:var(--bad);font-size:13px;margin-left:10px">Remove</a>`:""}</div>`;
+  [["tierStrong","strong"],["tierLikely","likely"],["tierNo","no"]].forEach(([id,key])=>{
+    const el=$(id);
+    el.querySelector(".rescards").innerHTML = groups[key].map(x=>card(x,key)).join("");
+    el.style.display = groups[key].length? "":"none";
+  });
+  document.querySelectorAll("[data-rmcustom]").forEach(a=>a.addEventListener("click",ev=>{
+    ev.preventDefault();
+    CUSTOM_RESOURCES.splice(parseInt(a.dataset.rmcustom),1);
+    renderResources();
+  }));
+}
+
+
+const SCAN_FINDINGS=[
+  {kind:"update",src:"scchousingauthority.org",title:"HCV Administrative Plan — proposed FY2027 revision posted for public comment",note:"Newer than the 4/30/2026 plan on file. Review before updating voucher eligibility language.",shelfMatch:"HCV Administrative Plan"},
+  {kind:"new",src:"osh.santaclaracounty.gov",title:"Supportive Housing Dashboard — Mid-Year 2026 Supplement",note:"New system-performance report; would join the reference shelf.",link:"https://osh.santaclaracounty.gov/home"},
+  {kind:"update",src:"scc.bitfocus.com",title:"VI-SPDAT for Families — revised packet (Jul 2026)",note:"Forms & Manuals hub shows a newer revision than the library's last-verified date.",shelfMatch:"Forms & Manuals"},
+  {kind:"new",src:"hudexchange.info",title:"Coordinated Entry data-sharing brief (2026)",note:"New federal guidance relevant to the Doorway↔CES referral hand-off.",link:"https://www.hudexchange.info/homelessness-assistance/coordinated-entry/"}
+];
+function runScan(){
+  $("scanBtn").disabled=true;
+  $("scanMsg").textContent="Scanning 4 source domains…";
+  $("scanResults").innerHTML="";
+  setTimeout(()=>{
+    $("scanBtn").disabled=false;
+    $("scanMsg").textContent=SCAN_FINDINGS.length+" findings (simulated) — approve to apply.";
+    $("scanResults").innerHTML=SCAN_FINDINGS.map((f,i)=>`
+      <div style="border:1px solid var(--line);border-radius:3px;padding:12px 14px;margin-top:8px" data-find="${i}">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${f.kind==="new"?"var(--blue)":"var(--warn)"}">${f.kind==="new"?"New resource":"Update available"} · ${f.src} · simulated</div>
+        <div style="font-weight:700;font-size:14px;margin-top:3px">${f.title}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">${f.note}</div>
+        <div style="margin-top:8px;display:flex;gap:10px">
+          <button class="btn-outline" style="padding:5px 14px;font-size:13px" data-approve="${i}">Approve</button>
+          <button style="font:inherit;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline" data-dismiss="${i}">Dismiss</button>
+        </div>
+      </div>`).join("");
+    document.querySelectorAll("[data-approve]").forEach(b=>b.addEventListener("click",()=>{
+      const f=SCAN_FINDINGS[parseInt(b.dataset.approve)];
+      if(f.kind==="new"){ SHELF.unshift([f.title+" — added via scan, verify at source",f.link]); $("shelf").innerHTML=SHELF.map(([t,l])=>`<li><a href="${l}" target="_blank" rel="noopener">${t}</a></li>`).join(""); }
+      else{ const idx=SHELF.findIndex(x=>x[0].includes(f.shelfMatch)); if(idx>=0){ SHELF[idx][0]+=" · update flagged "+"(Aug 2026)"; $("shelf").innerHTML=SHELF.map(([t,l])=>`<li><a href="${l}" target="_blank" rel="noopener">${t}</a></li>`).join(""); } }
+      b.closest("[data-find]").style.opacity=.45; b.closest("[data-find]").querySelectorAll("button").forEach(x=>x.disabled=true);
+    }));
+    document.querySelectorAll("[data-dismiss]").forEach(b=>b.addEventListener("click",()=>{ b.closest("[data-find]").remove(); }));
+  },900);
+}
+$("scanBtn").addEventListener("click",runScan);
+
+fillReplaceTargets();
+$("upMode").addEventListener("change",()=>{
+  const rep=$("upMode").value==="replace";
+  $("upTargetWrap").style.display=rep?"":"none";
+  $("upWhy").disabled=rep;
+  $("upWhy").placeholder=rep?"Not needed for updates — the match reasoning comes from the preserved eligibility tags":"e.g. Serves South County families at risk of eviction";
+});
+["mHH","mInc","mCity","mAge","mLS","mYears","mMonths","mEpisodes","mUtil","mIns","mDischarge","mQueue","mDv","mFleeing","mVet","mFoster","mJustice","mDisability","mHiv","mKids","mQ7","mQ8","mQ17","mQ18","mQ19","mQ20","mQ21","mQ22","mOther"].forEach(id=>$(id).addEventListener("input",markDirty));
+$("genMatches").addEventListener("click",generateMatches);
+$("upAdd").addEventListener("click",addCustomResource);
+$("mCity").innerHTML = CITIES.map(c=>`<option ${c==="Gilroy"?"selected":""}>${c}</option>`).join("");
+$("shelf").innerHTML = SHELF.map(([t,l])=>`<li><a href="${l}" target="_blank" rel="noopener">${t}</a></li>`).join("");
+
+/* ---- tabs ---- */
+document.querySelectorAll("#viewAdmin nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#viewAdmin nav.tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  $("tab-matcher").hidden = b.dataset.tab!=="matcher";
+  $("tab-manage").hidden  = b.dataset.tab!=="manage";
+}));
+
+/* ---- edit existing resource cards ---- */
+const esc=t=>String(t??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+let editTarget=null;
+function renderLibrary(){
+  const rows=[...RESOURCES.map((r,i)=>({r,i,custom:false})),...CUSTOM_RESOURCES.map((r,i)=>({r,i,custom:true}))];
+  $("libList").innerHTML = rows.map(({r,i,custom})=>{
+    const key=(custom?"c":"b")+i;
+    if(editTarget===key){
+      return `<div class="librow editing">
+        <div class="mfgrid">
+          <div><label>Name</label><input id="eName" value="${esc(r.name)}"></div>
+          <div><label>Category</label><input id="eCat" value="${esc(r.cat)}"></div>
+          <div style="grid-column:1/-1"><label>Description</label><input id="eDesc" value="${esc(r.desc)}"></div>
+          <div style="grid-column:1/-1"><label>Link</label><input id="eLink" value="${esc(r.link)}"></div>
+        </div>
+        <div class="librow-actions">
+          <button class="btn-primary" id="eSave">Save</button>
+          <button class="btn-outline" id="eCancel">Cancel</button>
+          <span class="enote">Eligibility rules for this resource are preserved.</span>
+        </div>
+      </div>`;
+    }
+    return `<div class="librow">
+      <div><div class="cat">${esc(r.cat)}${r.updatedOn?` · <span style="color:var(--ok)">Updated ${r.updatedOn}</span>`:""}</div>
+        <b>${esc(r.name)}</b><div class="libdesc">${esc(r.desc)}</div></div>
+      <div class="librow-actions"><a href="#" data-edit="${key}">Edit</a>${custom?` <a href="#" data-del="${i}" style="color:var(--bad)">Remove</a>`:""}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("[data-edit]").forEach(a=>a.addEventListener("click",ev=>{ev.preventDefault();editTarget=a.dataset.edit;renderLibrary();}));
+  document.querySelectorAll("[data-del]").forEach(a=>a.addEventListener("click",ev=>{ev.preventDefault();CUSTOM_RESOURCES.splice(parseInt(a.dataset.del),1);editTarget=null;renderLibrary();fillReplaceTargets();if(matchesGenerated)renderResources();}));
+  const sv=$("eSave");
+  if(sv){
+    sv.addEventListener("click",()=>{
+      const custom=editTarget[0]==="c", idx=parseInt(editTarget.slice(1));
+      const r = custom? CUSTOM_RESOURCES[idx] : RESOURCES[idx];
+      const nm=$("eName").value.trim();
+      if(nm) r.name=nm;
+      r.cat=$("eCat").value.trim()||r.cat;
+      r.desc=$("eDesc").value.trim();
+      r.link=$("eLink").value.trim()||r.link;
+      r.updatedOn="Sep 15, 2026";
+      editTarget=null;
+      renderLibrary(); fillReplaceTargets();
+      if(matchesGenerated) renderResources();
+    });
+    $("eCancel").addEventListener("click",()=>{editTarget=null;renderLibrary();});
+  }
+}
+
+renderResources();
+renderLibrary();
+})();
+</script>
+
+<script>
+(function(){
+  const V={chooser:document.getElementById("viewChooser"),app:document.getElementById("viewApplicant"),admin:document.getElementById("viewAdmin")};
+  function show(k){for(const x in V)V[x].hidden=x!==k;window.scrollTo(0,0);}
+  document.getElementById("chooseApplicant").addEventListener("click",()=>show("app"));
+  document.getElementById("chooseAdmin").addEventListener("click",()=>show("admin"));
+  document.getElementById("swApp").addEventListener("click",()=>show("chooser"));
+  document.getElementById("swAdmin").addEventListener("click",()=>show("chooser"));
+  show("chooser");
+})();
+</script>
+</body>
+</html>
